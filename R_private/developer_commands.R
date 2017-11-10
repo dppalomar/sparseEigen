@@ -2,8 +2,8 @@
 ## User installation
 ##
 install.packages(file.choose(), repos = NULL, type="source")
-library(covHeavyTail)
-help(package="covHeavyTail")
+library(sparseEigen)
+help(package="sparseEigen")
 ?momentsStudentt
 
 
