@@ -1,3 +1,0 @@
-#
-# Here go the functions
-#
