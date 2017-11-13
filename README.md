@@ -27,12 +27,14 @@ Example
 This is a simple illustrative example:
 
 ``` r
-# Parameters 
+# PARAMETERS 
 m <- 500 # dimension
 n <- 100 # number of samples
 q <- 3 # number of sparse eigenvectors to be estimated
 SpCard <- 0.2*m # cardinality of the sparse eigenvectors
+rho <- 0.6 # sparsity level
 
+# DATA
 # Sparse artificial eigenvectors
 V <- matrix(rnorm(m^2), ncol = m)
 tmp <- matrix(0, m, q)
@@ -59,13 +61,15 @@ R <- V %*% diag(vl) %*% t(V)
 C <- mvtnorm::rmvnorm(n = n, mean = rep(0, m), sigma = R) # random data with underlying sparse structure
 C <- C - matrix(rep(colMeans(C), n), nrow = n, byrow = T) # center the data
 
-# Sparse eigenvector extraction
-rho <- 0.6 # sparsity level
-res <- spEigen(C, q, rho, d)
+# ALGORITHM
+res <- spEigen(C, q, rho)
 
+# EVALUATION
+# Recovery
 recovery <- abs(diag(t(res$sp.vectors) %*% V[, 1:q])) # recovery
 print(recovery)
 
+# Comparison to normal eigenvectors
 par(mfcol = c(3, 2))
 plot(res$sp.vectors[, 1]*sign(res$sp.vectors[1, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(V[, 1]*sign(V[1, 1]), col = "red")
