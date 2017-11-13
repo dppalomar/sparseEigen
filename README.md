@@ -40,7 +40,7 @@ V <- matrix(rnorm(m^2), ncol = m)
 tmp <- matrix(0, m, q)
 
 for (i in 1:max(q, 2)) {
-  ind1 <- (i-1)*SpCard + 1
+  ind1 <- (i - 1)*SpCard + 1
   ind2 <- i*SpCard
   tmp[ind1:ind2, i] = 1/sqrt(SpCard)
   V[, i] <- tmp[, i]
