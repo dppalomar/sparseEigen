@@ -1,12 +1,13 @@
-spEigen <- function(C, q, rho_nrm, d = NULL, V = NULL, thres = NULL){
+spEigen <- function(C, q, rho, ...){
 
 # INPUT
 #   C :             n-by-m data matrix (n samples, m variables).
-#   d :             1-by-q vector with weights.
-#   rho_nrm :       Sparsity weight factor. Values from 0 to 1.
 #   q :             Number of estimated eigenvectors.
+#   rho :           Sparsity weight factor. Values from 0 to 1.
+#   d :             1-by-q vector with weights.
 #   V (optional):   m-by-q initial point matrix. If not provided the eigenvectors
 #                   of the sample covariance matrix are used.
+#   thres :         threshold
 #
 # OUTPUT
 #   sp.vectors :    m-by-q matrix, columns corresponding to leading
@@ -27,6 +28,9 @@ spEigen <- function(C, q, rho_nrm, d = NULL, V = NULL, thres = NULL){
 
 
 
+  ######################### INPUT ARGUMENTS #########################
+  varargin <- list(...)
+
   ######################### PARAMETERS #########################
   # Dimension
   m <- ncol(C)
@@ -39,10 +43,10 @@ spEigen <- function(C, q, rho_nrm, d = NULL, V = NULL, thres = NULL){
   # Sparsity parameter rho
   svd_c <- fast.svd(C)
   Sc2 <- svd_c$d ^ 2
-  rho <- rho_nrm * max(colSums(C ^ 2)) * (Sc2[1:q] / Sc2[1]) * d
+  rho <- rho * max(colSums(C ^ 2)) * (Sc2[1:q] / Sc2[1]) * d
 
   # Input parameter d: vector of weights
-  if (is.null(d)) {
+  if (is.null(varargin$d)) {
     if (q < m) {
       d <- rep(1, q)
     }
@@ -52,12 +56,12 @@ spEigen <- function(C, q, rho_nrm, d = NULL, V = NULL, thres = NULL){
   }
 
   # Input parameter V: initial point
-  if (is.null(V)) {
+  if (is.null(varargin$V)) {
     V <- svd_c$v[, 1:q]
   }
 
   # Imput parameter thres
-  if (is.null(thres)) {
+  if (is.null(varargin$thres)) {
     thres <- 1e-9
   }
 
