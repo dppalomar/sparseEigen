@@ -4,15 +4,15 @@
 #'
 #' @param C n-by-m data matrix (n samples, m variables).
 #' @param q number of eigenvectors to be estimated.
-#' @param rho_nrm sparsity weight factor. Values from 0 to 1.
-#' @param d 1-by-q vector with weights.
+#' @param rho sparsity weight factor. Values from 0 to 1.
+#' @param d 1-by-q vector with weights. The default value is \code{rep(1, q)}.
 #' @param V m-by-q initial point matrix. If not provided, the eigenvectors of the sample covariance matrix are used.
 #' @param thres threshold value. All the entries of the sparse eigenvectors less or equal to \code{thres} are set to 0. The default value is \code{1e-9}.
 #' @return A list with the following components:
 #' \item{\code{sp_vectors}  }{m-by-q matrix, columns corresponding to leading sparse eigenvectors.}
 #' \item{\code{vectors}  }{m-by-q matrix, columns corresponding to leading eigenvectors.}
 #' \item{\code{values}  }{q-by-1 vector corresponding to the leading eigenvalues.}
-#' @note If only the covariance matrix \code{S} is available and not the data matrix \code{C} then use Cholesky factorization and use the Cholesky factor instead of \code{C}.
+#' @note If only the covariance matrix is available and not the data matrix \code{C} then use Cholesky factorization and use the Cholesky factor instead of \code{C}.
 #' @author Konstantinos Benidis, Daniel P. Palomar
 #' @references
 #' K. Benidis, Y. Sun, P. Babu, D.P. Palomar "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
@@ -21,7 +21,10 @@
 #' @importFrom gmodels fast.svd
 #' @export
 
-spEigen <- function(C, q, rho_nrm, d = NULL, V = NULL, thres = NULL){
+spEigen <- function(C, q, rho, ...){
+
+######################### INPUT ARGUMENTS #########################
+varargin <- list(...)
 
 ######################### PARAMETERS #########################
 # Dimension
@@ -35,10 +38,10 @@ max_iter <- 1000 # maximum MM iterations
 # Sparsity parameter rho
 svd_c <- fast.svd(C)
 Sc2 <- svd_c$d ^ 2
-rho <- rho_nrm * max(colSums(C ^ 2)) * (Sc2[1:q] / Sc2[1]) * d
+rho <- rho * max(colSums(C ^ 2)) * (Sc2[1:q] / Sc2[1]) * d
 
 # Input parameter d: vector of weights
-if (is.null(d)) {
+if (is.null(varargin$d)) {
   if (q < m) {
     d <- rep(1, q)
   }
@@ -48,12 +51,12 @@ if (is.null(d)) {
 }
 
 # Input parameter V: initial point
-if (is.null(V)) {
+if (is.null(varargin$V)) {
   V <- svd_c$v[, 1:q]
 }
 
 # Imput parameter thres
-if (is.null(thres)) {
+if (is.null(varargin$thres)) {
   thres <- 1e-9
 }
 
