@@ -176,7 +176,7 @@ for (ee in 1:(K + 1)) {
   }
 }
 
-V[abs(V) < thres] <- 0; # threshold
+V[abs(V) < thres] <- 0 # threshold
 nrm <- 1 / sqrt(colSums(V ^ 2))
 V <- matrix(rep(nrm, m), ncol = q) * V
 
