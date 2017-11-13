@@ -23,6 +23,12 @@
 
 spEigen <- function(C, q, rho, ...){
 
+######################### ERROR CONTROL #########################
+if (anyNA(C) || anyNA(q) || anyNA(rho)) stop("This function cannot handle NAs.")
+if ( (q %% 1) != 0 || q <= 0) stop("The input argument q should be a positive integer.")
+if (rho <= 0) stop("The input argument rho should be positive.")
+
+
 ######################### INPUT ARGUMENTS #########################
 varargin <- list(...)
 
