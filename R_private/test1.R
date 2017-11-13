@@ -54,27 +54,26 @@ C <- C - matrix(rep(colMeans(C), n), nrow = n, byrow = T) # center the data
 #-------------------------------#
 # Sparse Eigenvector Extraction #
 rho <- 0.6
-Res <- spEigen(C, q, rho, d)
+res <- spEigen(C, q, rho)
 
 
 #-------#
 # Plots #
-Rec <- abs(diag(t(Res$sp.vectors) %*% V[, 1:q])) # recovery
-print(Rec)
+recovery <- abs(diag(t(res$sp.vectors) %*% V[, 1:q])) # recovery
+print(recovery)
 
 par(mfcol = c(3, 2))
-plot(Res$sp.vectors[, 1]*sign(Res$sp.vectors[1, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res$sp.vectors[, 1]*sign(res$sp.vectors[1, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(V[, 1]*sign(V[1, 1]), col = "red")
-plot(Res$sp.vectors[, 2]*sign(Res$sp.vectors[SpCard+1, 2]), main = "Second Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res$sp.vectors[, 2]*sign(res$sp.vectors[SpCard+1, 2]), main = "Second Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(V[, 2]*sign(V[SpCard+1, 2]), col = "red")
-plot(Res$sp.vectors[, 3]*sign(Res$sp.vectors[2*SpCard+1, 3]), main = "Third Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res$sp.vectors[, 3]*sign(res$sp.vectors[2*SpCard+1, 3]), main = "Third Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(V[, 3]*sign(V[2*SpCard+1, 3]), col = "red")
 
-plot(Res$vectors[, 1]*sign(Res$vectors[1, 1]), main = "First Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res$vectors[, 1]*sign(res$vectors[1, 1]), main = "First Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(V[, 1]*sign(V[1, 1]), col = "red")
-plot(Res$vectors[, 2]*sign(Res$vectors[SpCard+1, 2]), main = "Second Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res$vectors[, 2]*sign(res$vectors[SpCard+1, 2]), main = "Second Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(V[, 2]*sign(V[SpCard+1, 2]), col = "red")
-plot(Res$vectors[, 3]*sign(Res$vectors[2*SpCard+1, 3]), main = "Third Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res$vectors[, 3]*sign(res$vectors[2*SpCard+1, 3]), main = "Third Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(V[, 3]*sign(V[2*SpCard+1, 3]), col = "red")
-
 
