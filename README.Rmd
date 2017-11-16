@@ -1,8 +1,8 @@
 ---
 output:
-  html_document: default
   md_document:
     variant: markdown_github
+  html_document: default
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -20,7 +20,6 @@ knitr::opts_chunk$set(
 This package provides two functions to compute sparse eigenvectors (while keeping their orthogonality property) from either the covariance matrix or directly the data matrix.
 
 
-
 ## Installation
 ```{r, eval = FALSE}
 # Installation from local file
@@ -36,11 +35,12 @@ help(package="sparseEigen")
 ?spEigen
 ```
 
+
 ## Usage
 
 This is a simple illustrative example:
 
-```{r, eval = FALSE}
+```{r}
 library(sparseEigen)
 
 # parameters 
@@ -72,28 +72,34 @@ R <- V %*% diag(lmd) %*% t(V)
 X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
 X <- scale(X, center = TRUE, scale = FALSE)  # center the data
 
-
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
+<<<<<<< HEAD
 # res_sparse <- spEigen(cov(X), q, rho)
 res_sparse <- spEigenDataMatrix(X, q, rho)
-
+=======
+#res_sparse <- spEigen(cov(X), q, rho)
+#res_sparse <- spEigenDataMatrix(X, q, rho)
+>>>>>>> 90d3f727af0612042cc3978e8b9b7e767c686a4f
 
 # show inner product between estimated eigenvectors and originals
 inner_product_standard <- abs(diag(t(res_standard$vectors) %*% V[, 1:q]))
-inner_product_sparse <- abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))
+#inner_product_sparse <- abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))
 cat("Inner product for standard estimated eigenvectors: ", inner_product_standard)
-cat("Inner product for sparse estimated eigenvectors: ", inner_product_sparse)
+#cat("Inner product for sparse estimated eigenvectors: ", inner_product_sparse)
 
+```
 
+The following plot shows the sparsity pattern of the eigenvectors:
+```{r, echo = FALSE}
 # Comparison to normal eigenvectors
-par(mfcol = c(3, 2))
-plot(res$sp.vectors[, 1]*sign(res$sp.vectors[1, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
-lines(V[, 1]*sign(V[1, 1]), col = "red")
-plot(res$sp.vectors[, 2]*sign(res$sp.vectors[SpCard+1, 2]), main = "Second Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
-lines(V[, 2]*sign(V[SpCard+1, 2]), col = "red")
-plot(res$sp.vectors[, 3]*sign(res$sp.vectors[2*SpCard+1, 3]), main = "Third Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
-lines(V[, 3]*sign(V[2*SpCard+1, 3]), col = "red")
+par(mfcol = c(3, 1))
+# plot(res$sp.vectors[, 1]*sign(res$sp.vectors[1, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+# lines(V[, 1]*sign(V[1, 1]), col = "red")
+# plot(res$sp.vectors[, 2]*sign(res$sp.vectors[SpCard+1, 2]), main = "Second Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+# lines(V[, 2]*sign(V[SpCard+1, 2]), col = "red")
+# plot(res$sp.vectors[, 3]*sign(res$sp.vectors[2*SpCard+1, 3]), main = "Third Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+# lines(V[, 3]*sign(V[2*SpCard+1, 3]), col = "red")
 
 plot(res_standard$vectors[, 1]*sign(res_standard$vectors[1, 1]), main = "First Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(V[, 1]*sign(V[1, 1]), col = "red")
@@ -102,3 +108,4 @@ lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
 plot(res_standard$vectors[, 3]*sign(res_standard$vectors[2*sp_card+1, 3]), main = "Third Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 ```
+
