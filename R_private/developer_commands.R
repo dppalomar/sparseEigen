@@ -13,15 +13,16 @@ help(package="sparseEigen")
 ## Developer commands (http://r-pkgs.had.co.nz/)
 ##
 library(devtools)
-#devtools::create("covHeavyTail")
+#devtools::create("sparseEigen")
 devtools::load_all()  #or Ctrl-Shift-L
-#devtools::use_package("Gmedian")
 #devtools::use_package("mvtnorm")
 devtools::document()
 devtools::install()
 devtools::build()  # to generate the installation file
 #devtools::use_readme_rmd()  # to create the README file
 #devtools::use_data_raw()  # to set up the raw-data folder
+#devtools::use_vignette("sparse_eigenvectors")
+#devtools::build_vignettes() #or just install()
 
 # code checking
 lintr::lint_package()

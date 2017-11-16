@@ -67,7 +67,7 @@ res_standard <- eigen(cov(X))
 inner_product_standard <- abs(diag(t(res_standard$vectors) %*% V[, 1:q]))
 #inner_product_sparse <- abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))
 cat("Inner product for standard estimated eigenvectors: ", inner_product_standard)
-#> Inner product for standard estimated eigenvectors:  0.9903066 0.979756 0.9604419
+#> Inner product for standard estimated eigenvectors:  0.9592282 0.9440755 0.9657794
 #cat("Inner product for sparse estimated eigenvectors: ", inner_product_sparse)
 ```
 
