@@ -75,8 +75,8 @@ X <- scale(X, center = TRUE, scale = FALSE)  # center the data
 
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
-res_sparse <- spEigen(cov(X), q, rho)
-#res_sparse <- spEigenDataMatrix(X, q, rho)
+# res_sparse <- spEigen(cov(X), q, rho)
+res_sparse <- spEigenDataMatrix(X, q, rho)
 
 
 # show inner product between estimated eigenvectors and originals
