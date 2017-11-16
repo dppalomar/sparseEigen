@@ -38,8 +38,9 @@ help(package="sparseEigen")
 
 ## Usage
 
-This is a simple illustrative example:
+The following is a simple illustrative example.
 
+We start by loading the package and generating synthetic data with sparse eigenvectors:
 ```{r}
 library(sparseEigen)
 
@@ -71,36 +72,21 @@ R <- V %*% diag(lmd) %*% t(V)
 # generate data matrix from a zero-mean multivariate Gaussian distribution with the constructed covariance
 X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
 X <- scale(X, center = TRUE, scale = FALSE)  # center the data
-
+```
+Then we estimate the covariance matrix with `cov(X)` and compute its sparse eigenvectors:
+```{r}
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
 # res_sparse <- spEigen(cov(X), q, rho)
 res_sparse <- spEigenDataMatrix(X, q, rho)
+```
 
+We can finally assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
+```{r}
 # show inner product between estimated eigenvectors and originals
-inner_product_standard <- abs(diag(t(res_standard$vectors) %*% V[, 1:q]))
-inner_product_sparse <- abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))
-cat("Inner product for standard estimated eigenvectors: ", inner_product_standard)
-cat("Inner product for sparse estimated eigenvectors: ", inner_product_sparse)
-
+abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
+abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
 ```
 
-The following plot shows the sparsity pattern of the eigenvectors:
-```{r, echo = FALSE}
-# Comparison to normal eigenvectors
-par(mfcol = c(3, 2))
-plot(res_sparse$vectors[, 1]*sign(res_sparse$vectors[1, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
-lines(V[, 1]*sign(V[1, 1]), col = "red")
-plot(res_sparse$vectors[, 2]*sign(res_sparse$vectors[sp_card+1, 2]), main = "Second Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
-lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
-plot(res_sparse$vectors[, 3]*sign(res_sparse$vectors[2*sp_card+1, 3]), main = "Third Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
-lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 
-plot(res_standard$vectors[, 1]*sign(res_standard$vectors[1, 1]), main = "First Eigenvector", xlab = "Index", ylab = "", type = "h")
-lines(V[, 1]*sign(V[1, 1]), col = "red")
-plot(res_standard$vectors[, 2]*sign(res_standard$vectors[sp_card+1, 2]), main = "Second Eigenvector", xlab = "Index", ylab = "", type = "h")
-lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
-plot(res_standard$vectors[, 3]*sign(res_standard$vectors[2*sp_card+1, 3]), main = "Third Eigenvector", xlab = "Index", ylab = "", type = "h")
-lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
-```
 

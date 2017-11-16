@@ -24,7 +24,9 @@ help(package="sparseEigen")
 Usage
 -----
 
-This is a simple illustrative example:
+The following is a simple illustrative example.
+
+We start by loading the package and generating synthetic data with sparse eigenvectors:
 
 ``` r
 library(sparseEigen)
@@ -57,27 +59,23 @@ R <- V %*% diag(lmd) %*% t(V)
 # generate data matrix from a zero-mean multivariate Gaussian distribution with the constructed covariance
 X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
 X <- scale(X, center = TRUE, scale = FALSE)  # center the data
+```
 
+Then we estimate the covariance matrix with `cov(X)` and compute its sparse eigenvectors:
+
+``` r
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
 # res_sparse <- spEigen(cov(X), q, rho)
 res_sparse <- spEigenDataMatrix(X, q, rho)
-
-# show inner product between estimated eigenvectors and originals
-inner_product_standard <- abs(diag(t(res_standard$vectors) %*% V[, 1:q]))
-inner_product_sparse <- abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))
-cat("Inner product for standard estimated eigenvectors: ", inner_product_standard)
-<<<<<<< HEAD
-#> Inner product for standard estimated eigenvectors:  0.9592282 0.9440755 0.9657794
-#cat("Inner product for sparse estimated eigenvectors: ", inner_product_sparse)
-||||||| merged common ancestors
-#> Inner product for standard estimated eigenvectors:  0.9903066 0.979756 0.9604419
-#cat("Inner product for sparse estimated eigenvectors: ", inner_product_sparse)
-=======
-#> Inner product for standard estimated eigenvectors:  0.9311071 0.9280652 0.9744484
-cat("Inner product for sparse estimated eigenvectors: ", inner_product_sparse)
-#> Inner product for sparse estimated eigenvectors:  0.9978935 0.9978036 0.9930606
->>>>>>> 465c0d64d796733c539affd369b4fbcc77f6ce07
 ```
 
-The following plot shows the sparsity pattern of the eigenvectors: ![](README-unnamed-chunk-4-1.png)
+We can finally assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
+
+``` r
+# show inner product between estimated eigenvectors and originals
+abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
+#> [1] 0.8555144 0.8200231 0.8853215
+abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
+#> [1] 0.9978142 0.9970731 0.9939101
+```
