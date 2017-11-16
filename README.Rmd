@@ -77,8 +77,8 @@ Then we estimate the covariance matrix with `cov(X)` and compute its sparse eige
 ```{r}
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
-# res_sparse <- spEigen(cov(X), q, rho)
-res_sparse <- spEigenDataMatrix(X, q, rho)
+res_sparse <- spEigen(X, q, rho)
+# res_sparse <- spEigenCov(cov(X), q, rho)
 ```
 
 We can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
