@@ -70,12 +70,14 @@ res_standard <- eigen(cov(X))
 res_sparse <- spEigenDataMatrix(X, q, rho)
 ```
 
-We can finally assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
+We can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
 
 ``` r
 # show inner product between estimated eigenvectors and originals
 abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
-#> [1] 0.8555144 0.8200231 0.8853215
+#> [1] 0.9808463 0.9713701 0.9630519
 abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
-#> [1] 0.9978142 0.9970731 0.9939101
+#> [1] 0.9975342 0.9977144 0.9925543
 ```
+
+Finally, the following plot shows the sparsity pattern of the eigenvectors: ![](man/figures/README-unnamed-chunk-6-1.png)

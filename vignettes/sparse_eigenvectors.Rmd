@@ -4,6 +4,9 @@ author: "Konstantinos Benidis and Daniel P. Palomar"
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
+    number_sections: true
+    toc: no
+    toc_depth: 2
     fig_caption: yes
 vignette: >
   %\VignetteIndexEntry{Computing sparse eigenvectors}
@@ -16,6 +19,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+#See: https://github.com/arorar/covmat/blob/master/inst/doc/CovarianceEstimation.pdf
 ```
 
 This vignette illustrates the computation of sparse eigenvectors with the package `sparseEigen`.

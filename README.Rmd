@@ -11,7 +11,7 @@ output:
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "README-"
+  fig.path = "man/figures/README-"
 )
 ```
 
@@ -81,11 +81,29 @@ res_standard <- eigen(cov(X))
 res_sparse <- spEigenDataMatrix(X, q, rho)
 ```
 
-We can finally assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
+We can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
 ```{r}
 # show inner product between estimated eigenvectors and originals
 abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
 abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
+```
+
+Finally, the following plot shows the sparsity pattern of the eigenvectors:
+```{r, echo = FALSE, fig.height = 7, fig.width = 7}
+par(mfcol = c(3, 2))
+plot(res_sparse$vectors[, 1]*sign(res_sparse$vectors[1, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+lines(V[, 1]*sign(V[1, 1]), col = "red")
+plot(res_sparse$vectors[, 2]*sign(res_sparse$vectors[sp_card+1, 2]), main = "Second Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
+plot(res_sparse$vectors[, 3]*sign(res_sparse$vectors[2*sp_card+1, 3]), main = "Third Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
+
+plot(res_standard$vectors[, 1]*sign(res_standard$vectors[1, 1]), main = "First Eigenvector", xlab = "Index", ylab = "", type = "h")
+lines(V[, 1]*sign(V[1, 1]), col = "red")
+plot(res_standard$vectors[, 2]*sign(res_standard$vectors[sp_card+1, 2]), main = "Second Eigenvector", xlab = "Index", ylab = "", type = "h")
+lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
+plot(res_standard$vectors[, 3]*sign(res_standard$vectors[2*sp_card+1, 3]), main = "Third Eigenvector", xlab = "Index", ylab = "", type = "h")
+lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 ```
 
 
