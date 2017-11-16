@@ -1,4 +1,4 @@
-spEigen <- function(C, q, rho, ...){
+old_spEigen <- function(C, q, rho, ...){
 
 # INPUT
 #   C :             n-by-m data matrix (n samples, m variables).
@@ -45,11 +45,6 @@ spEigen <- function(C, q, rho, ...){
   k <- 0 # MM iteration counter
   max_iter <- 1000 # maximum MM iterations
 
-  # Sparsity parameter rho
-  svd_c <- fast.svd(C)
-  Sc2 <- svd_c$d ^ 2
-  rho <- rho * max(colSums(C ^ 2)) * (Sc2[1:q] / Sc2[1]) * d
-
   # Input parameter d: vector of weights
   if (is.null(varargin$d)) {
     if (q < m) {
@@ -59,6 +54,11 @@ spEigen <- function(C, q, rho, ...){
       d <- seq(from = 1, to = 0.1, length.out = 100)
     }
   }
+
+  # Sparsity parameter rho
+  svd_c <- fast.svd(C)
+  Sc2 <- svd_c$d ^ 2
+  rho <- rho * max(colSums(C ^ 2)) * (Sc2[1:q] / Sc2[1]) * d
 
   # Input parameter V: initial point
   if (is.null(varargin$V)) {
