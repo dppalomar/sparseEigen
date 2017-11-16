@@ -4,10 +4,10 @@
 \alias{spEigenDataMatrix}
 \title{Sparse Spectral Decomposition of a Matrix}
 \usage{
-spEigenDataMatrix(C, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-09)
+spEigenDataMatrix(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-09)
 }
 \arguments{
-\item{C}{n-by-m data matrix (n samples, m variables).}
+\item{X}{n-by-m data matrix (n samples, m variables).}
 
 \item{q}{number of eigenvectors to be estimated.}
 
@@ -21,15 +21,15 @@ spEigenDataMatrix(C, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-09)
 }
 \value{
 A list with the following components:
-\item{\code{sp_vectors}  }{m-by-q matrix, columns corresponding to leading sparse eigenvectors.}
-\item{\code{vectors}  }{m-by-q matrix, columns corresponding to leading eigenvectors.}
+\item{\code{vectors}  }{m-by-q matrix, columns corresponding to leading sparse eigenvectors.}
+\item{\code{standar_vectors}  }{m-by-q matrix, columns corresponding to leading eigenvectors.}
 \item{\code{values}  }{q-by-1 vector corresponding to the leading eigenvalues.}
 }
 \description{
 Computes sparse (orthogonal) eigenvectors of numeric data matrices.
 }
 \note{
-If only the covariance matrix is available and not the data matrix \code{C} then use Cholesky factorization and use the Cholesky factor instead of \code{C}.
+If only the covariance matrix is available and not the data matrix \code{X} then use Cholesky factorization and use the Cholesky factor instead of \code{X}.
 }
 \references{
 K. Benidis, Y. Sun, P. Babu, D.P. Palomar "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"

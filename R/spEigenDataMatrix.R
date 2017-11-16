@@ -2,17 +2,17 @@
 #'
 #' Computes sparse (orthogonal) eigenvectors of numeric data matrices.
 #'
-#' @param C n-by-m data matrix (n samples, m variables).
+#' @param X n-by-m data matrix (n samples, m variables).
 #' @param q number of eigenvectors to be estimated.
 #' @param rho sparsity weight factor. Values from 0 to 1.
 #' @param d 1-by-q vector with weights. The default value is \code{rep(1, q)}.
 #' @param V m-by-q initial point matrix. If not provided, the eigenvectors of the sample covariance matrix are used.
 #' @param thres threshold value. All the entries of the sparse eigenvectors less or equal to \code{thres} are set to 0. The default value is \code{1e-9}.
 #' @return A list with the following components:
-#' \item{\code{sp_vectors}  }{m-by-q matrix, columns corresponding to leading sparse eigenvectors.}
-#' \item{\code{vectors}  }{m-by-q matrix, columns corresponding to leading eigenvectors.}
+#' \item{\code{vectors}  }{m-by-q matrix, columns corresponding to leading sparse eigenvectors.}
+#' \item{\code{standard_vectors}  }{m-by-q matrix, columns corresponding to leading eigenvectors.}
 #' \item{\code{values}  }{q-by-1 vector corresponding to the leading eigenvalues.}
-#' @note If only the covariance matrix is available and not the data matrix \code{C} then use Cholesky factorization and use the Cholesky factor instead of \code{C}.
+#' @note If only the covariance matrix is available and not the data matrix \code{X} then use Cholesky factorization and use the Cholesky factor instead of \code{X}.
 #' @author Konstantinos Benidis and Daniel P. Palomar
 #' @references
 #' K. Benidis, Y. Sun, P. Babu, D.P. Palomar "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
@@ -20,13 +20,15 @@
 #' @examples
 #' @importFrom gmodels fast.svd
 #' @export
-spEigenDataMatrix <- function(C, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9) {
-  m <- ncol(C)
-  n <- nrow(C)
-
+spEigenDataMatrix <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9) {
+  m <- ncol(X)
+  n <- nrow(X)
 
   ######## error control  #########
-  if (anyNA(C) || anyNA(q) || anyNA(rho)) stop("This function cannot handle NAs.")
+  if (n == 1) stop("Only n=1 sample!!")
+  if (m == 1) stop("Data is univariate!")
+  if (q > qr(X)$rank) stop("The number of estimated eigenvectors q should not be larger than rank(X).")
+  if (anyNA(X) || anyNA(q) || anyNA(rho)) stop("This function cannot handle NAs.")
   if ( (q %% 1) != 0 || q <= 0) stop("The input argument q should be a positive integer.")
   if (rho <= 0) stop("The input argument rho should be positive.")
   #################################
@@ -36,11 +38,6 @@ spEigenDataMatrix <- function(C, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9)
   k <- 0 # MM iteration counter
   max_iter <- 1000 # maximum MM iterations
 
-  # Sparsity parameter rho
-  svd_c <- fast.svd(C)
-  Sc2 <- svd_c$d ^ 2
-  rho <- rho * max(colSums(C ^ 2)) * (Sc2[1:q] / Sc2[1]) * d
-
   # Input parameter d: vector of weights
   if (is.na(d)) {
     if (q < m)
@@ -48,6 +45,11 @@ spEigenDataMatrix <- function(C, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9)
     else
       d <- seq(from = 1, to = 0.1, length.out = 100)
   }
+
+  # Sparsity parameter rho
+  svd_c <- fast.svd(X)
+  Sc2 <- svd_c$d ^ 2
+  rho <- rho * max(colSums(X ^ 2)) * (Sc2[1:q] / Sc2[1]) * d
 
   # Input parameter V: initial point
   if (is.na(V)) {
@@ -146,7 +148,7 @@ spEigenDataMatrix <- function(C, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9)
         g[abs(V0) > epsi] <- (log( (p + abs(V0[abs(V0) > epsi]) ) / (p + epsi) )
                               / c1 + epsi / c2)
 
-        F_v[k] <- colSums( (C %*% V0) ^ 2) %*% d - colSums(g) %*% rho
+        F_v[k] <- colSums( (X %*% V0) ^ 2) %*% d - colSums(g) %*% rho
 
         if (flg == 0 && F_v[k] * (1 + sign(F_v[k]) * 1e-9) <= F_v[max(k - 1, 1)]) {
           a <- (a - 1) / 2
@@ -174,5 +176,5 @@ spEigenDataMatrix <- function(C, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9)
   nrm <- 1 / sqrt(colSums(V ^ 2))
   V <- matrix(rep(nrm, m), ncol = q) * V
 
-  return(list(sp.vectors = V, vectors = svd_c$v[, 1:q], values = Sc2[1:q] / n))
+  return(list(vectors = V, standard_vectors = svd_c$v[, 1:q], values = Sc2[1:q] / n))
 }
