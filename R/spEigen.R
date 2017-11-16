@@ -13,29 +13,25 @@
 #' \item{\code{vectors}  }{m-by-q matrix, columns corresponding to leading eigenvectors.}
 #' \item{\code{values}  }{q-by-1 vector corresponding to the leading eigenvalues.}
 #' @note If only the covariance matrix is available and not the data matrix \code{C} then use Cholesky factorization and use the Cholesky factor instead of \code{C}.
-#' @author Konstantinos Benidis, Daniel P. Palomar
+#' @author Konstantinos Benidis and Daniel P. Palomar
 #' @references
 #' K. Benidis, Y. Sun, P. Babu, D.P. Palomar "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
 #' IEEE Transactions on Signal Processing, vol 64, no. 23, pp. 6211-6226, Dec. 2016.
 #' @examples
 #' @importFrom gmodels fast.svd
 #' @export
+spEigen <- function(C, q = 1, rho = 0.5, d = NA, V, thres = 1e-9) {
+  m <- ncol(C)
+  n <- nrow(C)
 
-spEigen <- function(C, q, rho, ...){
 
-######################### ERROR CONTROL #########################
+######## error control  #########
 if (anyNA(C) || anyNA(q) || anyNA(rho)) stop("This function cannot handle NAs.")
 if ( (q %% 1) != 0 || q <= 0) stop("The input argument q should be a positive integer.")
 if (rho <= 0) stop("The input argument rho should be positive.")
+#################################
 
 
-######################### INPUT ARGUMENTS #########################
-varargin <- list(...)
-
-######################### PARAMETERS #########################
-# Dimension
-m <- ncol(C)
-n <- nrow(C)
 
 # MM Parameters
 k <- 0 # MM iteration counter
@@ -47,23 +43,16 @@ Sc2 <- svd_c$d ^ 2
 rho <- rho * max(colSums(C ^ 2)) * (Sc2[1:q] / Sc2[1]) * d
 
 # Input parameter d: vector of weights
-if (is.null(varargin$d)) {
-  if (q < m) {
+if (is.na(d)) {
+  if (q < m)
     d <- rep(1, q)
-  }
-  else {
+  else
     d <- seq(from = 1, to = 0.1, length.out = 100)
-  }
 }
 
 # Input parameter V: initial point
 if (is.null(varargin$V)) {
   V <- svd_c$v[, 1:q]
-}
-
-# Imput parameter thres
-if (is.null(varargin$thres)) {
-  thres <- 1e-9
 }
 
 # Preallocation
