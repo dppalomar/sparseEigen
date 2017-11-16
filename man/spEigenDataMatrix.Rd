@@ -22,7 +22,7 @@ spEigenDataMatrix(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-09)
 \value{
 A list with the following components:
 \item{\code{vectors}  }{m-by-q matrix, columns corresponding to leading sparse eigenvectors.}
-\item{\code{standar_vectors}  }{m-by-q matrix, columns corresponding to leading eigenvectors.}
+\item{\code{standard_vectors}  }{m-by-q matrix, columns corresponding to leading eigenvectors.}
 \item{\code{values}  }{q-by-1 vector corresponding to the leading eigenvalues.}
 }
 \description{
