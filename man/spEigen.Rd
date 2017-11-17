@@ -12,7 +12,7 @@ spEigen(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA,
 
 \item{q}{number of eigenvectors to be estimated.}
 
-\item{rho}{sparsity weight factor. Values from 0 to 1.}
+\item{rho}{sparsity weight factor. Any nonnegative number. Suggested range [0, 1].}
 
 \item{data}{boolean variable. If TRUE, \code{X} is treated as a data matrix else as a covariance matrix (default).}
 
