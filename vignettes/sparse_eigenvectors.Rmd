@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 header-includes:
    - \usepackage{amsmath}
 bibliography: refs.bib
-output: 
+output:
   rmarkdown::html_vignette:
     number_sections: true
     toc: no
