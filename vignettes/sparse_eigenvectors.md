@@ -110,12 +110,10 @@ eigenvectors (with *q* ≤ rank(**S**)) from an *m* × *m* covariance
 matrix **S** (typically the sample covariance matrix obtained from *n*
 samples) based on \[1\]. The underlying optimization problem that is
 solved is
-$$\\begin{equation}
-    \\begin{aligned}
+$$\\begin{aligned}
       &\\underset{\\mathbf{U}}{\\text{maximize}}\\quad \\text{Tr} \\left(\\mathbf{U}^\\top \\mathbf{S} \\mathbf{U} \\text{Diag}   (\\mathbf{d})\\right) - \\sum\_{i=1}^{q}\\rho\_i\\|\\mathbf{u}\_i\\|\_0\\\\
     &\\text{subject to}\\quad \\mathbf{U}^\\top\\mathbf{U}=\\mathbf{I}\_q,
-  \\end{aligned}
-    \\end{equation}$$
+  \\end{aligned}$$
  where **U** ∈ ℝ<sup>*m* × *q*</sup> is a matrix containing the *q*
 leading eigenvectors, **d** is a vector of weights to ensure that **U**
 contains the leading eigenvectors without an arbitrary rotation, and the
@@ -127,20 +125,16 @@ parameters *ρ*<sub>*i*</sub>'s.
 
 The ℓ<sub>0</sub>-"norm" is approximated by the continuous and
 differentiable function
-$$\\begin{equation}
-        g\_p^{\\epsilon}\\left(x \\right)= \\begin{cases}
-        \\frac{x^2}{2\\epsilon(p+\\epsilon)\\log(1+1/p)},& |x|\\leq\\epsilon,\\\\
-        \\frac{\\log\\left(\\frac{p+|x|}{p+\\epsilon}\\right)+\\frac{\\epsilon}{2(p+\\epsilon)}}{\\log(1+1/p)},& |x|&gt;\\epsilon,
-        \\end{cases}
-        \\end{equation}$$
+$$g\_p^{\\epsilon}\\left(x \\right)= \\begin{cases}
+    \\frac{x^2}{2\\epsilon(p+\\epsilon)\\log(1+1/p)},& |x|\\leq\\epsilon,\\\\
+    \\frac{\\log\\left(\\frac{p+|x|}{p+\\epsilon}\\right)+\\frac{\\epsilon}{2(p+\\epsilon)}}{\\log(1+1/p)},& |x|&gt;\\epsilon,
+    \\end{cases}$$
  where *p* &gt; 0 and 0 &lt; *ϵ* ≪ 1 are parameters that control the
 approximation. This leads to the following approximate problem:
-$$\\begin{equation}
-    \\begin{aligned}
+$$\\begin{aligned}
       &\\underset{\\mathbf{U}}{\\text{maximize}}\\quad \\text{Tr} \\left(\\mathbf{U}^\\top \\mathbf{S} \\mathbf{U} \\text{Diag}   (\\mathbf{d})\\right) - \\sum\_{j=1}^{q}\\rho\_j\\sum\_{i=1}^{m}g\_p^{\\epsilon}\\left(u\_{ij}\\right)\\\\
     &\\text{subject to}\\quad \\mathbf{U}^\\top\\mathbf{U}=\\mathbf{I}\_q.
-  \\end{aligned}
-    \\end{equation}$$
+  \\end{aligned}$$
 
 This problem can be solved via Majorization-Minimization (MM) \[2\] with
 an iterative closed-form update algorithm. For this, at each iteration

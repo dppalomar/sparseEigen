@@ -16,14 +16,15 @@ library(devtools)
 #devtools::create("sparseEigen")
 devtools::load_all()  #or Ctrl-Shift-L
 #devtools::use_package("mvtnorm")
-devtools::document()
+devtools::document()  #to generate all documentation via roxygen
 devtools::install()
 devtools::build()  # to generate the installation file
 #devtools::use_readme_rmd()  # to create the README file
 #devtools::use_data_raw()  # to set up the raw-data folder
 #devtools::use_vignette("sparse_eigenvectors")
-#devtools::build_vignettes() #or just install()
-#rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "md_document")  # this is to generate the .md for GitHub
+devtools::build_vignettes() #or just install()
+rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "md_document")  # this is to generate the .md for GitHub
+rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "pdf_document")
 
 # code checking
 lintr::lint_package()
