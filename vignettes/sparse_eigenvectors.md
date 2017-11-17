@@ -75,23 +75,23 @@ eigenvectors (sparse computation vs. classical computation):
 
     par(mfcol = c(3, 2))
     plot(res_sparse1$vectors[, 1]*sign(res_sparse1$vectors[1, 1]), 
-         main = "First sparse eigenvector", xlab = "Index", ylab = "", type = "h")
+         main = "First sparse eigenvector", xlab = "index", ylab = "", type = "h")
     lines(V[, 1]*sign(V[1, 1]), col = "red")
     plot(res_sparse1$vectors[, 2]*sign(res_sparse1$vectors[sp_card+1, 2]), 
-         main = "Second sparse eigenvector", xlab = "Index", ylab = "", type = "h")
+         main = "Second sparse eigenvector", xlab = "index", ylab = "", type = "h")
     lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
     plot(res_sparse1$vectors[, 3]*sign(res_sparse1$vectors[2*sp_card+1, 3]), 
-         main = "Third sparse eigenvector", xlab = "Index", ylab = "", type = "h")
+         main = "Third sparse eigenvector", xlab = "index", ylab = "", type = "h")
     lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 
     plot(res_standard$vectors[, 1]*sign(res_standard$vectors[1, 1]), 
-         main = "First regular eigenvector", xlab = "Index", ylab = "", type = "h")
+         main = "First regular eigenvector", xlab = "index", ylab = "", type = "h")
     lines(V[, 1]*sign(V[1, 1]), col = "red")
     plot(res_standard$vectors[, 2]*sign(res_standard$vectors[sp_card+1, 2]), 
-         main = "Second regular eigenvector", xlab = "Index", ylab = "", type = "h")
+         main = "Second regular eigenvector", xlab = "index", ylab = "", type = "h")
     lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
     plot(res_standard$vectors[, 3]*sign(res_standard$vectors[2*sp_card+1, 3]), 
-         main = "Third regular eigenvector", xlab = "Index", ylab = "", type = "h")
+         main = "Third regular eigenvector", xlab = "index", ylab = "", type = "h")
     lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 
 ![](sparse_eigenvectors_files/figure-markdown_strict/unnamed-chunk-5-1.png)
