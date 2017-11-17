@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 #See: https://github.com/arorar/covmat/blob/master/inst/doc/CovarianceEstimation.pdf
 ```
 
-This vignette illustrates the computation of sparse eigenvectors with the package `sparseEigen`.
+This vignette illustrates the computation of sparse eigenvectors or sparse PCA with the package `sparseEigen`.
 
 # Usage of the package
 

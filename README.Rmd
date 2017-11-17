@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 # sparseEigen
 
-This package provides two functions to compute sparse eigenvectors (while keeping their orthogonality property) from either the covariance matrix or directly the data matrix.
+This package provides functions to compute sparse eigenvectors (while keeping their orthogonality property) or sparse PCA from either the covariance matrix or directly the data matrix.
 
 
 ## Installation
