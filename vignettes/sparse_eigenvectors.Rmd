@@ -2,6 +2,8 @@
 title: "Computing sparse eigenvectors"
 author: "Konstantinos Benidis and Daniel P. Palomar"
 date: "`r Sys.Date()`"
+header-includes:
+   - \usepackage{amsmath}
 output: 
   rmarkdown::html_vignette:
     number_sections: true
@@ -23,6 +25,9 @@ knitr::opts_chunk$set(
 ```
 
 This vignette illustrates the computation of sparse eigenvectors or sparse PCA with the package `sparseEigen`.
+
+# Comparison with other packages
+hulsdhiuvhsdal
 
 # Usage of the package
 
@@ -66,8 +71,8 @@ Then we estimate the covariance matrix with `cov(X)` and compute its sparse eige
 ```{r}
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
+res_sparse <- spEigen(X, q, rho)
 # res_sparse <- spEigen(cov(X), q, rho)
-res_sparse <- spEigenDataMatrix(X, q, rho)
 ```
 
 We can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
@@ -96,21 +101,31 @@ plot(res_standard$vectors[, 3]*sign(res_standard$vectors[2*sp_card+1, 3]), main 
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 ```
 
-
-
 ## Covariance matrix estimation with sparse eigenvectors
 
 
 
 # Explanation of the algorithms
 
-You can write math expressions, e.g. $Y = X\beta + \epsilon$, footnotes^[A footnote here.], and tables, e.g. using `knitr::kable()`.
+## *spEigen*: Sparse eigenvectors extraction
 
-```{r, echo=FALSE, results='asis'}
-knitr::kable(head(mtcars, 10))
-```
+The underlying optimization problem that is solved in *spEigen* is:
+$$\begin{equation}
+	\begin{aligned}
+	  &\underset{\mathbf{U}}{\text{maximize}}\quad \text{Tr} \left(\mathbf{U}^\top \mathbf{S} \mathbf{U} \text{Diag}   (\mathbf{d})\right) - \sum_{i=1}^{q}\rho_i\|\mathbf{u}_i\|_0\\
+  	&\text{subject to}\quad \mathbf{U}^\top\mathbf{U}=\mathbf{I}_q.
+  \end{aligned}
+	\end{equation}$$ 
 
-Also a quote using `>`:
 
-> "He who gives up [code] safety for [code] speed deserves neither."
-([via](https://twitter.com/hadleywickham/status/504368538874703872))
+## *spEigenCov*: Covariance matrix estimation with sparse eigenvectors
+
+
+
+
+
+
+
+
+
+

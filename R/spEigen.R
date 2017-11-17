@@ -20,7 +20,7 @@
 #' @examples
 #' @importFrom gmodels fast.svd
 #' @export
-spEigenDataMatrix <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9) {
+spEigen <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9) {
   m <- ncol(X)
   n <- nrow(X)
 
