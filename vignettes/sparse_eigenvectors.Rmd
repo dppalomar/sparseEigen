@@ -2,16 +2,17 @@
 title: "Computing sparse eigenvectors"
 author: "Konstantinos Benidis and Daniel P. Palomar"
 date: "`r Sys.Date()`"
-header-includes:
 bibliography: refs.bib
 csl: ieee.csl
-output: 
+output:
+  pdf_document:
+    number_sections: true
+    toc: yes
+    toc_depth: 2
   rmarkdown::html_vignette:
     number_sections: true
-    toc: no
+    toc: yes
     toc_depth: 2
-    fig_caption: yes
-  pdf_document:
 vignette: >
   %\VignetteIndexEntry{Computing sparse eigenvectors}
   %\VignetteEngine{knitr::rmarkdown}
@@ -24,6 +25,11 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 #See: https://github.com/arorar/covmat/blob/master/inst/doc/CovarianceEstimation.pdf
+#rmarkdown::html_vignette:
+#html_document:
+#  prettydoc::html_pretty:
+#    theme: cayman
+#    highlight: vignette
 ```
 
 This vignette illustrates the computation of sparse eigenvectors or sparse PCA with the package `sparseEigen` (with a comparison with other packages) and gives a description of the algorithms used.
@@ -121,28 +127,22 @@ lalala
 ## `spEigen()`: Sparse eigenvectors from a given covariance matrix
 
 The goal of `spEigen()` is the estimation of the $q$ leading sparse eigenvectors (with $q \leq \text{rank}(\mathbf{S})$) from an $m\times m$ covariance matrix $\mathbf{S}$ (typically the sample covariance matrix obtained from $n$ samples) based on [@BenFenPal2018]. The underlying optimization problem that is solved is
-$$\begin{equation}
-	\begin{aligned}
+$$\begin{aligned}
 	  &\underset{\mathbf{U}}{\text{maximize}}\quad \text{Tr} \left(\mathbf{U}^\top \mathbf{S} \mathbf{U} \text{Diag}   (\mathbf{d})\right) - \sum_{i=1}^{q}\rho_i\|\mathbf{u}_i\|_0\\
   	&\text{subject to}\quad \mathbf{U}^\top\mathbf{U}=\mathbf{I}_q,
-  \end{aligned}
-	\end{equation}$$ 
+  \end{aligned}$$ 
 where $\mathbf{U}\in\mathbb{R}^{m\times q}$ is a matrix containing the $q$ leading eigenvectors, $\mathbf{d}$ is a vector of weights to ensure that $\mathbf{U}$ contains the leading eigenvectors without an arbitrary rotation, and the $\rho_i$'s are the regularization parameters to control how much sparsity is desired. This problem is the typical PCA formulation with an extra penalty term in the objective that penalizes the cardinality of the eigenvectors, controled by the regularization parameters $\rho_i$'s.	 
 
 The $\ell_0$-"norm" is approximated by the continuous and differentiable function
-$$\begin{equation}
-		g_p^{\epsilon}\left(x \right)= \begin{cases}
-		\frac{x^2}{2\epsilon(p+\epsilon)\log(1+1/p)},& |x|\leq\epsilon,\\
-		\frac{\log\left(\frac{p+|x|}{p+\epsilon}\right)+\frac{\epsilon}{2(p+\epsilon)}}{\log(1+1/p)},& |x|>\epsilon,
-		\end{cases}
-		\end{equation}$$
+$$g_p^{\epsilon}\left(x \right)= \begin{cases}
+	\frac{x^2}{2\epsilon(p+\epsilon)\log(1+1/p)},& |x|\leq\epsilon,\\
+	\frac{\log\left(\frac{p+|x|}{p+\epsilon}\right)+\frac{\epsilon}{2(p+\epsilon)}}{\log(1+1/p)},& |x|>\epsilon,
+	\end{cases}$$
 where $p>0$ and $0<\epsilon\ll1$ are parameters that control the approximation. This leads to the following approximate problem:
-$$\begin{equation}
-	\begin{aligned}
+$$\begin{aligned}
 	  &\underset{\mathbf{U}}{\text{maximize}}\quad \text{Tr} \left(\mathbf{U}^\top \mathbf{S} \mathbf{U} \text{Diag}   (\mathbf{d})\right) - \sum_{j=1}^{q}\rho_j\sum_{i=1}^{m}g_p^{\epsilon}\left(u_{ij}\right)\\
   	&\text{subject to}\quad \mathbf{U}^\top\mathbf{U}=\mathbf{I}_q.
-  \end{aligned}
-	\end{equation}$$ 
+  \end{aligned}$$ 
 
 
 This problem can be solved via Majorization-Minimization (MM) [@SunBabPal2018] with an iterative closed-form update algorithm. For this, at each iteration (denoted by $k$) two key quantities are needed:
