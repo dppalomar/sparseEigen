@@ -30,6 +30,7 @@ We start by loading the package and generating synthetic data with sparse eigenv
 
 ``` r
 library(sparseEigen)
+set.seed(42)
 
 # parameters 
 m <- 500  # dimension
@@ -66,8 +67,7 @@ Then we estimate the covariance matrix with `cov(X)` and compute its sparse eige
 ``` r
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
-res_sparse <- spEigen(X, q, rho)
-# res_sparse <- spEigenCov(cov(X), q, rho)
+res_sparse <- spEigen(cov(X), q, rho)
 ```
 
 We can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
@@ -75,9 +75,9 @@ We can assess how good the estimated eigenvectors are by computing the inner pro
 ``` r
 # show inner product between estimated eigenvectors and originals
 abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
-#> [1] 0.9897699 0.9754331 0.9601220
+#> [1] 0.9726306 0.9488030 0.9623054
 abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
-#> [1] 0.9976244 0.9963531 0.9944753
+#> [1] 0.9975791 0.9968073 0.9956102
 ```
 
 Finally, the following plot shows the sparsity pattern of the eigenvectors (sparse computation vs. classical computation): ![](man/figures/README-unnamed-chunk-6-1.png)

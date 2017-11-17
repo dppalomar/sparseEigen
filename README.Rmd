@@ -1,8 +1,8 @@
 ---
 output:
+  html_document: default
   md_document:
     variant: markdown_github
-  html_document: default
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -43,6 +43,7 @@ The following is a simple illustrative example.
 We start by loading the package and generating synthetic data with sparse eigenvectors:
 ```{r}
 library(sparseEigen)
+set.seed(42)
 
 # parameters 
 m <- 500  # dimension
@@ -77,8 +78,7 @@ Then we estimate the covariance matrix with `cov(X)` and compute its sparse eige
 ```{r}
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
-res_sparse <- spEigen(X, q, rho)
-# res_sparse <- spEigenCov(cov(X), q, rho)
+res_sparse <- spEigen(cov(X), q, rho)
 ```
 
 We can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
@@ -91,18 +91,24 @@ abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvect
 Finally, the following plot shows the sparsity pattern of the eigenvectors (sparse computation vs. classical computation):
 ```{r, echo = FALSE, fig.height = 7, fig.width = 7}
 par(mfcol = c(3, 2))
-plot(res_sparse$vectors[, 1]*sign(res_sparse$vectors[1, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res_sparse$vectors[, 1]*sign(res_sparse$vectors[1, 1]), 
+     main = "First sparse eigenvector", xlab = "index", ylab = "", type = "h")
 lines(V[, 1]*sign(V[1, 1]), col = "red")
-plot(res_sparse$vectors[, 2]*sign(res_sparse$vectors[sp_card+1, 2]), main = "Second Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res_sparse$vectors[, 2]*sign(res_sparse$vectors[sp_card+1, 2]), 
+     main = "Second sparse eigenvector", xlab = "index", ylab = "", type = "h")
 lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
-plot(res_sparse$vectors[, 3]*sign(res_sparse$vectors[2*sp_card+1, 3]), main = "Third Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res_sparse$vectors[, 3]*sign(res_sparse$vectors[2*sp_card+1, 3]), 
+     main = "Third sparse eigenvector", xlab = "index", ylab = "", type = "h")
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 
-plot(res_standard$vectors[, 1]*sign(res_standard$vectors[1, 1]), main = "First Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res_standard$vectors[, 1]*sign(res_standard$vectors[1, 1]), 
+     main = "First regular eigenvector", xlab = "index", ylab = "", type = "h")
 lines(V[, 1]*sign(V[1, 1]), col = "red")
-plot(res_standard$vectors[, 2]*sign(res_standard$vectors[sp_card+1, 2]), main = "Second Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res_standard$vectors[, 2]*sign(res_standard$vectors[sp_card+1, 2]), 
+     main = "Second regular eigenvector", xlab = "index", ylab = "", type = "h")
 lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
-plot(res_standard$vectors[, 3]*sign(res_standard$vectors[2*sp_card+1, 3]), main = "Third Eigenvector", xlab = "Index", ylab = "", type = "h")
+plot(res_standard$vectors[, 3]*sign(res_standard$vectors[2*sp_card+1, 3]), 
+     main = "Third regular eigenvector", xlab = "index", ylab = "", type = "h")
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 ```
 
