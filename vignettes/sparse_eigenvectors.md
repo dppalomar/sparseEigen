@@ -1,5 +1,3 @@
-
-
 This vignette illustrates the computation of sparse eigenvectors or
 sparse PCA with the package `sparseEigen` (with a comparison with other
 packages) and gives a description of the algorithms used.
@@ -63,7 +61,7 @@ inner product with the original eigenvectors (the closer to 1 the
 better):
 
     # show inner product between estimated eigenvectors and originals
-    abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
+    abs(diag(t(res_standard$vectors) %*% V[, 1:q]))   #for standard estimated eigenvectors
     #> [1] 0.9726306 0.9488030 0.9623054
     abs(diag(t(res_sparse1$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
     #> [1] 0.9975791 0.9968073 0.9956102
@@ -110,8 +108,8 @@ Explanation of the algorithms
 The goal of `spEigen()` is the estimation of the *q* leading sparse
 eigenvectors (with *q* ≤ rank(**S**)) from an *m* × *m* covariance
 matrix **S** (typically the sample covariance matrix obtained from *n*
-samples) based on (Konstantinos, Yiyong, and Palomar 2018). The
-underlying optimization problem that is solved is
+samples) based on \[1\]. The underlying optimization problem that is
+solved is
 $$\\begin{equation}
     \\begin{aligned}
       &\\underset{\\mathbf{U}}{\\text{maximize}}\\quad \\text{Tr} \\left(\\mathbf{U}^\\top \\mathbf{S} \\mathbf{U} \\text{Diag}   (\\mathbf{d})\\right) - \\sum\_{i=1}^{q}\\rho\_i\\|\\mathbf{u}\_i\\|\_0\\\\
@@ -144,23 +142,23 @@ $$\\begin{equation}
   \\end{aligned}
     \\end{equation}$$
 
-This problem can be solved via Majorization-Minimization (MM) (Ying Sun
-and Palomar 2011) with an iterative closed-form update algorithm. For
-this, at each iteration (denoted by *k*) two key quantities are needed:
+This problem can be solved via Majorization-Minimization (MM) \[2\] with
+an iterative closed-form update algorithm. For this, at each iteration
+(denoted by *k*) two key quantities are needed:
 
 **G**<sup>(*k*)</sup> = **S****U**<sup>(*k*)</sup>Diag(**d**)
   
-**H**<sup>(*k*)</sup> = \[diag(**w**<sup>(*k*)</sup>−**w**<sub>max</sub><sup>(*k*)</sup>⊗**1**<sub>*m*</sub>)**u**<sup>(*k*)</sup>\]<sub>*m* × *q*</sub>,
+$$\\mathbf{H}^{(k)}=\\left\[\\text{diag}\\left(\\mathbf{w}^{(k)}-\\mathbf{w}\_{\\max}^{(k)}\\otimes\\mathbf{1}\_{m}\\right)\\mathbf{\\tilde{u}}^{(k)}\\right\]\_{m\\times q},$$
  where
 $$w\_{i}^{(k)}= \\begin{cases}
-        \\frac{\\rho\_i}{2\\epsilon(p+\\epsilon)\\log(1+1/p)},& |u^{(k)}\_{i}|\\leq\\epsilon,\\\\
-        \\frac{\\rho\_i}{2\\log(1+1/p)|u^{(k)}\_{i}|\\left(|u^{(k)}\_{i}|+p\\right)},&                |u^{(k)}\_{i}|&gt;\\epsilon,
+        \\frac{\\rho\_i}{2\\epsilon(p+\\epsilon)\\log(1+1/p)},& |\\tilde{u}^{(k)}\_{i}|\\leq\\epsilon,\\\\
+        \\frac{\\rho\_i}{2\\log(1+1/p)|\\tilde{u}^{(k)}\_{i}|\\left(|\\tilde{u}^{(k)}\_{i}|+p\\right)},&                |\\tilde{u}^{(k)}\_{i}|&gt;\\epsilon,
         \\end{cases}$$
  with **w** ∈ ℝ<sub>+</sub><sup>*m**q*</sup>,
-**u**<sup>(*k*)</sup> = vec(**U**<sup>(*k*)</sup>)∈ℝ<sub>+</sub><sup>*m**q*</sup>,
+$\\mathbf{\\tilde{u}}^{(k)} = \\text{vec}(\\mathbf{U}^{(k)})\\in\\mathbb{R}\_+^{mq}$,
 **w**<sub>max</sub> ∈ ℝ<sub>+</sub><sup>*q*</sup>, with
-*w*<sub>max, *i*</sub> being the maximum weight that corresponds to
-**u**<sub>*i*</sub><sup>(*k*)</sup>.
+*w*<sub>max, *i*</sub> being the maximum weight that corresponds to the
+*i*-th eigenvector **u**<sub>*i*</sub><sup>(*k*)</sup>.
 
 The iterative closed-form update algorithm is:
 
@@ -174,16 +172,28 @@ The iterative closed-form update algorithm is:
 > 6.  Repeat steps 2-5 until convergence  
 > 7.  Return **U**<sup>(*k*)</sup>
 
-Internally, all the computations of **G**<sup>(*k*)</sup> and
+The initial point of the algorithm **U**<sup>(0)</sup> is set by default
+to the *q* leading standard eigenvectors, unless the user specifies
+otherwise. Internally, all the computations of **G**<sup>(*k*)</sup> and
 **H**<sup>(*k*)</sup> are done through the eigenvalue decomposition
 (EVD) of **S**. Since we can also retrieve the eigenvectors and
 eigenvalues of **S** through the singular value decomposition (SVD) of
 the data matrix **X**, with
 $\\mathbf{S} = \\frac{1}{n-1}\\mathbf{X}^\\top\\mathbf{X}$, it becomes
 possible to use as an input to 'spEigen()' either the covariance matrix
-**S** or directly the data matrix **X**. Although **H**<sup>(*k*)</sup>
-does not depend directly on **S**, the parameters *ρ*<sub>*j*</sub> are
-set based on its eigenvalues.
+**S** or directly the data matrix **X**.
+
+Although **H**<sup>(*k*)</sup> does not depend directly on **S**, the
+parameters *ρ*<sub>*j*</sub> are set based on its eigenvalues. In
+particular, each *ρ*<sub>*j*</sub> takes a value in an interval
+\[0, *ρ*<sub>*j*</sub><sup>max</sup>\] based on the input variable
+*ρ* ∈ \[0, 1\] that the user selects, i.e.,
+*ρ*<sub>*j*</sub> = *ρ**ρ*<sub>*j*</sub><sup>max</sup>. The uppperbound
+*ρ*<sub>*j*</sub><sup>max</sup> depends, among others, on the
+eigenvalues of **S**. Note that the theoretical upperbound is derived
+based on the initial problem and not the approximate. Therefore,
+although a suggested range for *ρ* is the interval \[0, 1\], any
+nonnegative value is accepted by the algorithm.
 
 `spEigenCov()`: Covariance matrix estimation with sparse eigenvectors
 ---------------------------------------------------------------------
@@ -191,11 +201,11 @@ set based on its eigenvalues.
 References
 ==========
 
-Konstantinos, Benidis, Feng Yiyong, and D. P. Palomar. 2018. “Sparse
-Portfolios for High-Dimensional Financial Index Tracking.” *IEEE Trans.
-Signal Processing* 66 (1): 155–70.
+\[1\] K. Benidis, Y. Feng, and D. P. Palomar, “Sparse portfolios for
+high-dimensional financial index tracking,” *IEEE Transactions on Signal
+Processing*, vol. 66, no. 1, pp. 155–170, jan. 2018.
 
-Ying Sun, Prabhu Babu, and Daniel P. Palomar. 2011.
-“Majorization-Minimization Algorithms in Signal Processing,
-Communications, and Machine Learning.” *IEEE Trans. Signal Processing*
-65 (3): 794–816.
+\[2\] Y. Sun, P. Babu, and D. P. Palomar, “Majorization-minimization
+algorithms in signal processing, communications, and machine learning,”
+*IEEE Transactions on Signal Processing*, vol. 65, no. 3, pp. 794–816,
+feb. 2011.

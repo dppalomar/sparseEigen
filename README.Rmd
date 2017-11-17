@@ -1,8 +1,9 @@
 ---
+title: "sparseEigen"
 output:
-  html_document: default
-  md_document:
+  html_document:
     variant: markdown_github
+    keep_md: true
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -15,7 +16,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-# sparseEigen
 
 This package provides functions to compute sparse eigenvectors (while keeping their orthogonality) or sparse PCA from either the covariance matrix or directly the data matrix.
 

@@ -1,13 +1,17 @@
+# sparseEigen
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-sparseEigen
-===========
+
+
+
+
 
 This package provides functions to compute sparse eigenvectors (while keeping their orthogonality) or sparse PCA from either the covariance matrix or directly the data matrix.
 
-Installation
-------------
 
-``` r
+## Installation
+
+```r
 # Installation from local file
 install.packages(file.choose(), repos = NULL, type="source")
 
@@ -21,14 +25,14 @@ help(package="sparseEigen")
 ?spEigen
 ```
 
-Usage
------
+
+## Usage
 
 The following is a simple illustrative example.
 
 We start by loading the package and generating synthetic data with sparse eigenvectors:
 
-``` r
+```r
 library(sparseEigen)
 set.seed(42)
 
@@ -61,10 +65,9 @@ R <- V %*% diag(lmd) %*% t(V)
 X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
 X <- scale(X, center = TRUE, scale = FALSE)  # center the data
 ```
-
 Then we estimate the covariance matrix with `cov(X)` and compute its sparse eigenvectors:
 
-``` r
+```r
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
 res_sparse <- spEigen(cov(X), q, rho)
@@ -72,7 +75,7 @@ res_sparse <- spEigen(cov(X), q, rho)
 
 We can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
 
-``` r
+```r
 # show inner product between estimated eigenvectors and originals
 abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
 #> [1] 0.9726306 0.9488030 0.9623054
@@ -80,4 +83,8 @@ abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvect
 #> [1] 0.9975791 0.9968073 0.9956102
 ```
 
-Finally, the following plot shows the sparsity pattern of the eigenvectors (sparse computation vs. classical computation): ![](man/figures/README-unnamed-chunk-6-1.png)
+Finally, the following plot shows the sparsity pattern of the eigenvectors (sparse computation vs. classical computation):
+![](man/figures/README-unnamed-chunk-6-1.png)<!-- -->
+
+
+
