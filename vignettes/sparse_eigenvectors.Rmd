@@ -36,6 +36,7 @@ hulsdhiuvhsdal
 We start by loading the package and generating synthetic data with sparse eigenvectors:
 ```{r}
 library(sparseEigen)
+set.seed(42)
 
 # parameters 
 m <- 500  # dimension
@@ -156,6 +157,8 @@ The iterative closed-form update algorithm is:
 5. $k \gets k+1$  
 6. Repeat steps 2-5 until convergence  
 7. Return $\mathbf{U}^{(k)}$  
+
+Internally, all the computations of $\mathbf{G}^{(k)}$ and $\mathbf{H}^{(k)}$ are done through the EVD of $\mathbf{S}$. Since we can retrieve the eigenvectors and eigenvalues of $\mathbf{S}$ through the SVD of the data matrix $\mathbf{X}$, with $\mathbf{S} = \frac{1}{n-1}\mathbf{X}^\top\mathbf{X}$, it becomes possible to use as an input to *spEigen* either the covariance matrix $\mathbf{S}$ or directly the data matrix $\mathbf{X}$. Although $\mathbf{H}^{(k)}$ does not depend directly on $\mathbf{S}$, the parameters $\rho_j$ are set based on its eigenvalues.   
 
 
 
