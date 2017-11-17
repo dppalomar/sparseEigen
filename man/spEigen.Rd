@@ -14,7 +14,7 @@ spEigen(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA,
 
 \item{rho}{sparsity weight factor. Values from 0 to 1.}
 
-\item{data}{boolean variable. If TRUE, \code{X} is a data matrix else a covariance matrix (default).}
+\item{data}{boolean variable. If TRUE, \code{X} is treated as a data matrix else as a covariance matrix (default).}
 
 \item{d}{1-by-q vector with weights. The default value is \code{rep(1, q)}.}
 

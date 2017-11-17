@@ -5,7 +5,7 @@
 #' @param X m-by-m covariance matrix or n-by-m data matrix (n samples, m variables).
 #' @param q number of eigenvectors to be estimated.
 #' @param rho sparsity weight factor. Values from 0 to 1.
-#' @param data boolean variable. If TRUE, \code{X} is a data matrix else a covariance matrix (default).
+#' @param data boolean variable. If TRUE, \code{X} is treated as a data matrix else as a covariance matrix (default).
 #' @param d 1-by-q vector with weights. The default value is \code{rep(1, q)}.
 #' @param V m-by-q initial point matrix. If not provided, the eigenvectors of the sample covariance matrix are used.
 #' @param thres threshold value. All the entries of the sparse eigenvectors less or equal to \code{thres} are set to 0. The default value is \code{1e-9}.
