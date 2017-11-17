@@ -27,8 +27,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
-#See: https://github.com/arorar/covmat/blob/master/inst/doc/CovarianceEstimation.pdf
-#rmarkdown::html_vignette:
+#Vignette pdf example: https://github.com/arorar/covmat/blob/master/inst/doc/CovarianceEstimation.pdf
 #html_document:
 #  prettydoc::html_pretty:
 #    theme: cayman
