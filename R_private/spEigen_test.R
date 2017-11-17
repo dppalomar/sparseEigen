@@ -1,15 +1,6 @@
 spEigen_test <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9, cov = TRUE, transf = FALSE) {
   m <- ncol(X)
   
-  # ######## error control  #########
-  # if (n == 1) stop("Only n=1 sample!!")
-  # if (m == 1) stop("Data is univariate!")
-  # if (q > qr(X)$rank) stop("The number of estimated eigenvectors q should not be larger than rank(X).")
-  # if (anyNA(X) || anyNA(q) || anyNA(rho)) stop("This function cannot handle NAs.")
-  # if ( (q %% 1) != 0 || q <= 0) stop("The input argument q should be a positive integer.")
-  # if (rho <= 0) stop("The input argument rho should be positive.")
-  # #################################
-  
   if (cov == FALSE && transf == TRUE) {
     X = cov(X)
     cov = TRUE
@@ -35,16 +26,14 @@ spEigen_test <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9, cov 
   
   # Sparsity parameter rho
   if (cov == TRUE) {
-    n = qr(X)$rank
     svd_x <- fast.svd(X)
-    Sc2 <- (n - 1) * svd_x$d 
-    rho <- rho * (n - 1) * max(diag(X)) * (Sc2[1:q] / Sc2[1]) * d
+    sv2 <- svd_x$d 
+    rho <- rho * max(diag(X)) * (sv2[1:q] / sv2[1]) * d
   } 
   else {
-    n <- nrow(X)
     svd_x <- fast.svd(X)
-    Sc2 <- svd_x$d ^ 2
-    rho <- rho * max(colSums(X ^ 2)) * (Sc2[1:q] / Sc2[1]) * d
+    sv2 <- svd_x$d ^ 2
+    rho <- rho * max(colSums(X ^ 2)) * (sv2[1:q] / sv2[1]) * d
   }
     
   # Input parameter V: initial point
@@ -98,7 +87,7 @@ spEigen_test <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9, cov 
         H[, i] <- (w_tmp - max(w_tmp) * rep(1, m)) * V[, i] * rho[i]
       }
       
-      G <- svd_x$v %*% ( (t(svd_x$v) %*% V_tld) * matrix(rep(Sc2, q), ncol = q) )
+      G <- svd_x$v %*% ( (t(svd_x$v) %*% V_tld) * matrix(rep(sv2, q), ncol = q) )
       
       # update
       s1 <- fast.svd(G - H)
@@ -119,7 +108,7 @@ spEigen_test <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9, cov 
         H[, i] <- (w_tmp - max(w_tmp) * rep(1, m)) * V1[, i] * rho[i]
       }
       
-      G <- svd_x$v %*% ( (t(svd_x$v) %*% V_tld) * matrix(rep(Sc2, q), ncol = q) )
+      G <- svd_x$v %*% ( (t(svd_x$v) %*% V_tld) * matrix(rep(sv2, q), ncol = q) )
       
       # update
       s2 <- fast.svd(G - H)
@@ -144,10 +133,9 @@ spEigen_test <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9, cov 
         g[abs(V0) > epsi] <- (log( (p + abs(V0[abs(V0) > epsi]) ) / (p + epsi) )
                               / c1 + epsi / c2)
         if (cov == TRUE) 
-          F_v[k] <- (n - 1) * diag(t(V0) %*% X %*% V0) %*% d - colSums(g) %*% rho  
+          F_v[k] <- diag(t(V0) %*% X %*% V0) %*% d - colSums(g) %*% rho  
         else
           F_v[k] <- colSums( (X %*% V0) ^ 2) %*% d - colSums(g) %*% rho
-        
           
         if (flg == 0 && F_v[k] * (1 + sign(F_v[k]) * 1e-9) <= F_v[max(k - 1, 1)]) {
           a <- (a - 1) / 2
@@ -175,5 +163,5 @@ spEigen_test <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9, cov 
   nrm <- 1 / sqrt(colSums(V ^ 2))
   V <- matrix(rep(nrm, m), ncol = q) * V
   
-  return(list(vectors = V, standard_vectors = svd_x$v[, 1:q], values = Sc2[1:q] / (n - 1)))
+  return(list(vectors = V, standard_vectors = svd_x$v[, 1:q], values = ifelse(rep(cov,q), sv2[1:q], sv2[1:q] / (nrow(X) - 1))))
 }

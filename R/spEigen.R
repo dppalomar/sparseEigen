@@ -1,10 +1,11 @@
 #' Sparse Spectral Decomposition of a Matrix
 #'
-#' Computes sparse (orthogonal) eigenvectors of numeric data matrices.
+#' Computes sparse (orthogonal) eigenvectors of numeric covariance or data matrices.
 #'
-#' @param X n-by-m data matrix (n samples, m variables).
+#' @param X m-by-m covariance matrix or n-by-m data matrix (n samples, m variables).
 #' @param q number of eigenvectors to be estimated.
 #' @param rho sparsity weight factor. Values from 0 to 1.
+#' @param data boolean variable. If TRUE, \code{X} is treated as a data matrix else as a covariance matrix (default).
 #' @param d 1-by-q vector with weights. The default value is \code{rep(1, q)}.
 #' @param V m-by-q initial point matrix. If not provided, the eigenvectors of the sample covariance matrix are used.
 #' @param thres threshold value. All the entries of the sparse eigenvectors less or equal to \code{thres} are set to 0. The default value is \code{1e-9}.
@@ -12,7 +13,6 @@
 #' \item{\code{vectors}  }{m-by-q matrix, columns corresponding to leading sparse eigenvectors.}
 #' \item{\code{standard_vectors}  }{m-by-q matrix, columns corresponding to leading eigenvectors.}
 #' \item{\code{values}  }{q-by-1 vector corresponding to the leading eigenvalues.}
-#' @note If only the covariance matrix is available and not the data matrix \code{X} then use Cholesky factorization and use the Cholesky factor instead of \code{X}.
 #' @author Konstantinos Benidis and Daniel P. Palomar
 #' @references
 #' K. Benidis, Y. Sun, P. Babu, D.P. Palomar "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
@@ -20,12 +20,10 @@
 #' @examples
 #' @importFrom gmodels fast.svd
 #' @export
-spEigen <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9) {
+spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1e-9) {
   m <- ncol(X)
-  n <- nrow(X)
 
   ######## error control  #########
-  if (n == 1) stop("Only n=1 sample!!")
   if (m == 1) stop("Data is univariate!")
   if (q > qr(X)$rank) stop("The number of estimated eigenvectors q should not be larger than rank(X).")
   if (anyNA(X) || anyNA(q) || anyNA(rho)) stop("This function cannot handle NAs.")
@@ -47,13 +45,20 @@ spEigen <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9) {
   }
 
   # Sparsity parameter rho
-  svd_c <- fast.svd(X)
-  Sc2 <- svd_c$d ^ 2
-  rho <- rho * max(colSums(X ^ 2)) * (Sc2[1:q] / Sc2[1]) * d
+  if (data == FALSE) {
+    svd_x <- fast.svd(X)
+    sv2 <- svd_x$d
+    rho <- rho * max(diag(X)) * (sv2[1:q] / sv2[1]) * d
+  }
+  else {
+    svd_x <- fast.svd(X)
+    sv2 <- svd_x$d ^ 2
+    rho <- rho * max(colSums(X ^ 2)) * (sv2[1:q] / sv2[1]) * d
+  }
 
   # Input parameter V: initial point
   if (is.na(V)) {
-    V <- svd_c$v[, 1:q]
+    V <- svd_x$v[, 1:q]
   }
 
   # Preallocation
@@ -102,7 +107,7 @@ spEigen <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9) {
         H[, i] <- (w_tmp - max(w_tmp) * rep(1, m)) * V[, i] * rho[i]
       }
 
-      G <- svd_c$v %*% ( (t(svd_c$v) %*% V_tld) * matrix(rep(Sc2, q), ncol = q) )
+      G <- svd_x$v %*% ( (t(svd_x$v) %*% V_tld) * matrix(rep(sv2, q), ncol = q) )
 
       # update
       s1 <- fast.svd(G - H)
@@ -123,7 +128,7 @@ spEigen <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9) {
         H[, i] <- (w_tmp - max(w_tmp) * rep(1, m)) * V1[, i] * rho[i]
       }
 
-      G <- svd_c$v %*% ( (t(svd_c$v) %*% V_tld) * matrix(rep(Sc2, q), ncol = q) )
+      G <- svd_x$v %*% ( (t(svd_x$v) %*% V_tld) * matrix(rep(sv2, q), ncol = q) )
 
       # update
       s2 <- fast.svd(G - H)
@@ -147,8 +152,11 @@ spEigen <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9) {
         g[abs(V0) <= epsi] <- V0[abs(V0) <= epsi] ^ 2 / (epsi * c2)
         g[abs(V0) > epsi] <- (log( (p + abs(V0[abs(V0) > epsi]) ) / (p + epsi) )
                               / c1 + epsi / c2)
+        if (data == FALSE)
+          F_v[k] <- diag(t(V0) %*% X %*% V0) %*% d - colSums(g) %*% rho
+        else
+          F_v[k] <- colSums( (X %*% V0) ^ 2) %*% d - colSums(g) %*% rho
 
-        F_v[k] <- colSums( (X %*% V0) ^ 2) %*% d - colSums(g) %*% rho
 
         if (flg == 0 && F_v[k] * (1 + sign(F_v[k]) * 1e-9) <= F_v[max(k - 1, 1)]) {
           a <- (a - 1) / 2
@@ -176,5 +184,5 @@ spEigen <- function(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-9) {
   nrm <- 1 / sqrt(colSums(V ^ 2))
   V <- matrix(rep(nrm, m), ncol = q) * V
 
-  return(list(vectors = V, standard_vectors = svd_c$v[, 1:q], values = Sc2[1:q] / n))
+  return(list(vectors = V, standard_vectors = svd_x$v[, 1:q], values = ifelse(rep(data,q), sv2[1:q] / (nrow(X) - 1), sv2[1:q])))
 }
