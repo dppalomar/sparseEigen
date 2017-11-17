@@ -109,13 +109,54 @@ lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 
 ## *spEigen*: Sparse eigenvectors extraction
 
-The underlying optimization problem that is solved in *spEigen* is:
+The goal of *spEigen* is the estimation of the $q$ leading sparse eigenvectors. The underlying optimization problem that is solved is:
 $$\begin{equation}
 	\begin{aligned}
 	  &\underset{\mathbf{U}}{\text{maximize}}\quad \text{Tr} \left(\mathbf{U}^\top \mathbf{S} \mathbf{U} \text{Diag}   (\mathbf{d})\right) - \sum_{i=1}^{q}\rho_i\|\mathbf{u}_i\|_0\\
+  	&\text{subject to}\quad \mathbf{U}^\top\mathbf{U}=\mathbf{I}_q,
+  \end{aligned}
+	\end{equation}$$ 
+where $\mathbf{U}\in\mathbb{R}^{m\times q}$ is a matrix containing the $q$ leading eigenvectors (with $q \leq \text{rank}(\mathbf{S})$), $\mathbf{S}$ is the sample covariance matrix and $\mathbf{d}$ some weight parameters to ensure that the term $\text{Tr} \left(\mathbf{U}^\top \mathbf{S} \mathbf{U} \text{Diag}   (\mathbf{d})\right)$ will not be a constant. This problem is the typical PCA formulation with an extra penalty term in the objective that penalizes the cardinality of the eigenvectors, controled by the regularization parameters $\rho_j$.	 
+
+The $\ell_0$-"norm" is approximated by the continuous and differentiable function
+$$\begin{equation}
+		g_p^{\epsilon}\left(x \right)= \begin{cases}
+		\frac{x^2}{2\epsilon(p+\epsilon)\log(1+1/p)},& |x|\leq\epsilon,\\
+		\frac{\log\left(\frac{p+|x|}{p+\epsilon}\right)+\frac{\epsilon}{2(p+\epsilon)}}{\log(1+1/p)},& |x|>\epsilon,
+		\end{cases}
+		\end{equation}$$
+where $p>0$ and $0<\epsilon\ll1$ are parameters that control the approximation. This leads to the following approximate problem:
+$$\begin{equation}
+	\begin{aligned}
+	  &\underset{\mathbf{U}}{\text{maximize}}\quad \text{Tr} \left(\mathbf{U}^\top \mathbf{S} \mathbf{U} \text{Diag}   (\mathbf{d})\right) - \sum_{j=1}^{q}\rho_j\sum_{i=1}^{m}g_p^{\epsilon}\left(u_{ij}\right)\\
   	&\text{subject to}\quad \mathbf{U}^\top\mathbf{U}=\mathbf{I}_q.
   \end{aligned}
 	\end{equation}$$ 
+
+
+This problem can be solved via MM with an iterative closed-form update algorithm. For this, at each iteration (denoted by $k$) two key quantities are needed:
+
+* $$\mathbf{G}^{(k)} = \mathbf{S}\mathbf{U}^{(k)}\text{Diag}(\mathbf{d})$$  
+* $$\mathbf{H}^{(k)}=\left[\text{diag}\left(\mathbf{w}^{(k)}-\mathbf{w}_{\max}^{(k)}\otimes\mathbf{1}_{m}\right)\mathbf{u}^{(k)}\right]_{m\times q},$$ 
+where
+$$\begin{equation*}
+		w_{i}= \begin{cases}
+		\frac{\rho_i}{2\epsilon(p+\epsilon)\log(1+1/p)},& |u^{(k)}_{i}|\leq\epsilon,\\
+		\frac{\rho_i}{2\log(1+1/p)|u^{(k)}_{i}|\left(|u^{(k)}_{i}|+p\right)},&                |u^{(k)}_{i}|>\epsilon,
+		\end{cases}
+		\end{equation*}$$
+with $\mathbf{w}\in\mathbb{R}_+^{mq}$, $\mathbf{u}^{(k)} = \text{vec}(\mathbf{U}^{(k)})$, $\mathbf{w}_{\max}\in\mathbb{R}^q_+$, with $w_{\max,i}$ being the maximum weight that corresponds to $\mathbf{u}^{(k)}_{i}$.
+
+The iterative closed-form update algorithm is:  
+
+> 1. Set $k=0$ and choose an initial point $\mathbf{U}^{(0)}$  
+2. Compute $\mathbf{G}^{(k)}$ and $\mathbf{H}^{(k)}$  
+3. Compute $\mathbf{V}_{\text{L}}$, $\mathbf{V}_{\text{R}}$, the left and right singular vectors of $\left(\mathbf{G}^{(k)} - \mathbf{H}^{(k)}\right)$  
+4. $\mathbf{U}^{(k+1)} \gets \mathbf{V}_{\text{L}}\mathbf{V}_{\text{R}}^\top$  
+5. $k \gets k+1$  
+6. Repeat steps 2-5 until convergence  
+7. Return $\mathbf{U}^{(k)}$  
+
 
 
 ## *spEigenCov*: Covariance matrix estimation with sparse eigenvectors
