@@ -4,12 +4,8 @@ author: "Konstantinos Benidis and Daniel P. Palomar"
 date: "`r Sys.Date()`"
 header-includes:
 bibliography: refs.bib
-<<<<<<< HEAD
 csl: ieee.csl
 output: 
-=======
-output:
->>>>>>> 191b3636aae4400d7ac143e9cb7d913c6e5904b5
   rmarkdown::html_vignette:
     number_sections: true
     toc: no
@@ -152,13 +148,13 @@ $$\begin{equation}
 This problem can be solved via Majorization-Minimization (MM) [@SunBabPal2018] with an iterative closed-form update algorithm. For this, at each iteration (denoted by $k$) two key quantities are needed:
 
 $$\mathbf{G}^{(k)} = \mathbf{S}\mathbf{U}^{(k)}\text{Diag}(\mathbf{d})$$  
-$$\mathbf{H}^{(k)}=\left[\text{diag}\left(\mathbf{w}^{(k)}-\mathbf{w}_{\max}^{(k)}\otimes\mathbf{1}_{m}\right)\mathbf{u}^{(k)}\right]_{m\times q},$$ 
+$$\mathbf{H}^{(k)}=\left[\text{diag}\left(\mathbf{w}^{(k)}-\mathbf{w}_{\max}^{(k)}\otimes\mathbf{1}_{m}\right)\mathbf{\tilde{u}}^{(k)}\right]_{m\times q},$$ 
 where
 $$w_{i}^{(k)}= \begin{cases}
-		\frac{\rho_i}{2\epsilon(p+\epsilon)\log(1+1/p)},& |u^{(k)}_{i}|\leq\epsilon,\\
-		\frac{\rho_i}{2\log(1+1/p)|u^{(k)}_{i}|\left(|u^{(k)}_{i}|+p\right)},&                |u^{(k)}_{i}|>\epsilon,
+		\frac{\rho_i}{2\epsilon(p+\epsilon)\log(1+1/p)},& |\tilde{u}^{(k)}_{i}|\leq\epsilon,\\
+		\frac{\rho_i}{2\log(1+1/p)|\tilde{u}^{(k)}_{i}|\left(|\tilde{u}^{(k)}_{i}|+p\right)},&                |\tilde{u}^{(k)}_{i}|>\epsilon,
 		\end{cases}$$
-with $\mathbf{w}\in\mathbb{R}_+^{mq}$, $\mathbf{u}^{(k)} = \text{vec}(\mathbf{U}^{(k)})\in\mathbb{R}_+^{mq}$, $\mathbf{w}_{\max}\in\mathbb{R}^q_+$, with $w_{\max,i}$ being the maximum weight that corresponds to $\mathbf{u}^{(k)}_{i}$.
+with $\mathbf{w}\in\mathbb{R}_+^{mq}$, $\mathbf{\tilde{u}}^{(k)} = \text{vec}(\mathbf{U}^{(k)})\in\mathbb{R}_+^{mq}$, $\mathbf{w}_{\max}\in\mathbb{R}^q_+$, with $w_{\max,i}$ being the maximum weight that corresponds to the $i$-th eigenvector $\mathbf{u}^{(k)}_{i}$.
 
 The iterative closed-form update algorithm is:  
 
@@ -170,7 +166,9 @@ The iterative closed-form update algorithm is:
 6. Repeat steps 2-5 until convergence  
 7. Return $\mathbf{U}^{(k)}$  
 
-Internally, all the computations of $\mathbf{G}^{(k)}$ and $\mathbf{H}^{(k)}$ are done through the eigenvalue decomposition (EVD) of $\mathbf{S}$. Since we can also retrieve the eigenvectors and eigenvalues of $\mathbf{S}$ through the singular value decomposition (SVD) of the data matrix $\mathbf{X}$, with $\mathbf{S} = \frac{1}{n-1}\mathbf{X}^\top\mathbf{X}$, it becomes possible to use as an input to 'spEigen()' either the covariance matrix $\mathbf{S}$ or directly the data matrix $\mathbf{X}$. Although $\mathbf{H}^{(k)}$ does not depend directly on $\mathbf{S}$, the parameters $\rho_j$ are set based on its eigenvalues.   
+The initial point of the algorithm $\mathbf{U}^{(0)}$ is set by default to the $q$ leading standard eigenvectors, unless the user specifies otherwise. Internally, all the computations of $\mathbf{G}^{(k)}$ and $\mathbf{H}^{(k)}$ are done through the eigenvalue decomposition (EVD) of $\mathbf{S}$. Since we can also retrieve the eigenvectors and eigenvalues of $\mathbf{S}$ through the singular value decomposition (SVD) of the data matrix $\mathbf{X}$, with $\mathbf{S} = \frac{1}{n-1}\mathbf{X}^\top\mathbf{X}$, it becomes possible to use as an input to 'spEigen()' either the covariance matrix $\mathbf{S}$ or directly the data matrix $\mathbf{X}$. 
+
+Although $\mathbf{H}^{(k)}$ does not depend directly on $\mathbf{S}$, the parameters $\rho_j$ are set based on its eigenvalues. In particular, each $\rho_j$ takes a value in an interval $[0, \rho_j^{\text{max}}]$ based on the input variable $\rho\in[0, 1]$ that the user selects, i.e., $\rho_j = \rho\rho_j^{\text{max}}$. The uppperbound $\rho_j^{\text{max}}$ depends, among others, on the eigenvalues of $\mathbf{S}$. Note that the theoretical upperbound is derived based on the initial problem and not the approximate. Therefore, although a suggested range for $\rho$ is the interval $[0, 1]$, any nonnegative value is accepted by the algorithm.    
 
 
 
