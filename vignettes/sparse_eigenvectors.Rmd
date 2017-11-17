@@ -10,6 +10,7 @@ output:
     toc: yes
     toc_depth: 2
   rmarkdown::html_vignette:
+    keep_md: true
     number_sections: true
     toc: yes
     toc_depth: 2
