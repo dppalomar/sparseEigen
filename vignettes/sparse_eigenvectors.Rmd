@@ -3,8 +3,8 @@ title: "Computing sparse eigenvectors"
 author: "Konstantinos Benidis and Daniel P. Palomar"
 date: "`r Sys.Date()`"
 header-includes:
-   - \usepackage{amsmath}
 bibliography: refs.bib
+csl: ieee.csl
 output: 
   rmarkdown::html_vignette:
     number_sections: true
@@ -81,7 +81,7 @@ res_sparse2 <- spEigen(X, q, rho, data = TRUE)
 We can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
 ```{r}
 # show inner product between estimated eigenvectors and originals
-abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
+abs(diag(t(res_standard$vectors) %*% V[, 1:q]))   #for standard estimated eigenvectors
 abs(diag(t(res_sparse1$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
 abs(diag(t(res_sparse2$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
 ```
