@@ -71,7 +71,7 @@ Then we estimate the covariance matrix with `cov(X)` and compute its sparse eige
 ```{r}
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
-res_sparse <- spEigen(X, q, rho)
+res_sparse <- spEigen(X, q, rho, data = TRUE)
 # res_sparse <- spEigen(cov(X), q, rho)
 ```
 

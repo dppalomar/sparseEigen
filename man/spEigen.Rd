@@ -4,14 +4,17 @@
 \alias{spEigen}
 \title{Sparse Spectral Decomposition of a Matrix}
 \usage{
-spEigen(X, q = 1, rho = 0.5, d = NA, V = NA, thres = 1e-09)
+spEigen(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA,
+  thres = 1e-09)
 }
 \arguments{
-\item{X}{n-by-m data matrix (n samples, m variables).}
+\item{X}{m-by-m covariance matrix or n-by-m data matrix (n samples, m variables).}
 
 \item{q}{number of eigenvectors to be estimated.}
 
 \item{rho}{sparsity weight factor. Values from 0 to 1.}
+
+\item{data}{boolean variable. If TRUE, \code{X} is a data matrix else a covariance matrix (default).}
 
 \item{d}{1-by-q vector with weights. The default value is \code{rep(1, q)}.}
 
@@ -26,10 +29,7 @@ A list with the following components:
 \item{\code{values}  }{q-by-1 vector corresponding to the leading eigenvalues.}
 }
 \description{
-Computes sparse (orthogonal) eigenvectors of numeric data matrices.
-}
-\note{
-If only the covariance matrix is available and not the data matrix \code{X} then use Cholesky factorization and use the Cholesky factor instead of \code{X}.
+Computes sparse (orthogonal) eigenvectors of numeric covariance or data matrices.
 }
 \references{
 K. Benidis, Y. Sun, P. Babu, D.P. Palomar "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
