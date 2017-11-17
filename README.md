@@ -2,7 +2,7 @@
 sparseEigen
 ===========
 
-This package provides two functions to compute sparse eigenvectors (while keeping their orthogonality property) from either the covariance matrix or directly the data matrix.
+This package provides functions to compute sparse eigenvectors (while keeping their orthogonality) or sparse PCA from either the covariance matrix or directly the data matrix.
 
 Installation
 ------------
@@ -75,9 +75,9 @@ We can assess how good the estimated eigenvectors are by computing the inner pro
 ``` r
 # show inner product between estimated eigenvectors and originals
 abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
-#> [1] 0.9890793 0.9853646 0.9649207
+#> [1] 0.9897699 0.9754331 0.9601220
 abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
-#> [1] 0.9980523 0.9964127 0.9915976
+#> [1] 0.9976244 0.9963531 0.9944753
 ```
 
-Finally, the following plot shows the sparsity pattern of the eigenvectors: ![](man/figures/README-unnamed-chunk-6-1.png)
+Finally, the following plot shows the sparsity pattern of the eigenvectors (sparse computation vs. classical computation): ![](man/figures/README-unnamed-chunk-6-1.png)

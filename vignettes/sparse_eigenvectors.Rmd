@@ -83,7 +83,7 @@ abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvect
 ```
 
 
-Finally, the following plot shows the sparsity pattern of the eigenvectors:
+Finally, the following plot shows the sparsity pattern of the eigenvectors (sparse computation vs. classical computation):
 ```{r, fig.height = 7, fig.width = 7}
 par(mfcol = c(3, 2))
 plot(res_sparse$vectors[, 1]*sign(res_sparse$vectors[1, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
@@ -107,7 +107,7 @@ lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 
 # Explanation of the algorithms
 
-## *spEigen*: Sparse eigenvectors extraction
+## *spEigen*: Sparse eigenvectors extraction from a given covariance matrix
 
 The underlying optimization problem that is solved in *spEigen* is:
 $$\begin{equation}

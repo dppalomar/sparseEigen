@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 # sparseEigen
 
-This package provides functions to compute sparse eigenvectors (while keeping their orthogonality property) or sparse PCA from either the covariance matrix or directly the data matrix.
+This package provides functions to compute sparse eigenvectors (while keeping their orthogonality) or sparse PCA from either the covariance matrix or directly the data matrix.
 
 
 ## Installation
@@ -88,7 +88,7 @@ abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenve
 abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
 ```
 
-Finally, the following plot shows the sparsity pattern of the eigenvectors:
+Finally, the following plot shows the sparsity pattern of the eigenvectors (sparse computation vs. classical computation):
 ```{r, echo = FALSE, fig.height = 7, fig.width = 7}
 par(mfcol = c(3, 2))
 plot(res_sparse$vectors[, 1]*sign(res_sparse$vectors[1, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
