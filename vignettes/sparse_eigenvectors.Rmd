@@ -2,12 +2,9 @@
 title: "Computing sparse eigenvectors"
 author: "Konstantinos Benidis and Daniel P. Palomar"
 date: "`r Sys.Date()`"
-<<<<<<< HEAD
 header-includes:
   - \setlength{\parindent}{24em}
   - \setlength{\parskip}{0em}
-=======
->>>>>>> 10ab0d735dde208802da46b0b3a664c77538b028
 bibliography: refs.bib
 csl: ieee.csl
 output:
