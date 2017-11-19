@@ -23,8 +23,8 @@ devtools::build()  # to generate the installation file
 #devtools::use_data_raw()  # to set up the raw-data folder
 #devtools::use_vignette("sparse_eigenvectors")
 devtools::build_vignettes() #or just install()
-rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "md_document")  # this is to generate the .md for GitHub
-rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "pdf_document")
+#rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "md_document")  # this is to generate the .md for GitHub
+rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "all")
 
 # code checking
 lintr::lint_package()
