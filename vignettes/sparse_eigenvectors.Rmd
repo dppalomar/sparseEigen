@@ -4,13 +4,14 @@ author: "Konstantinos Benidis and Daniel P. Palomar"
 date: "`r Sys.Date()`"
 bibliography: refs.bib
 csl: ieee.csl
+header-includes:
+  - \setlength{\parindent}{12pt}
 output:
-  pdf_document:
+  rmarkdown::html_vignette:
     number_sections: true
     toc: yes
     toc_depth: 2
-  rmarkdown::html_vignette:
-    keep_md: true
+  pdf_document:
     number_sections: true
     toc: yes
     toc_depth: 2
@@ -32,6 +33,7 @@ knitr::opts_chunk$set(
 #    highlight: vignette
 ```
 
+-----------
 This vignette illustrates the computation of sparse eigenvectors or sparse PCA with the package `sparseEigen` (with a comparison with other packages) and gives a description of the algorithms used.
 
 
@@ -175,11 +177,8 @@ Although $\mathbf{H}^{(k)}$ does not depend directly on $\mathbf{S}$, the parame
 ## `spEigenCov()`: Covariance matrix estimation with sparse eigenvectors
 
 
-
-# References
-
-
-
-
-
-
+# References {-}
+\setlength{\parindent}{-0.2in}
+\setlength{\leftskip}{0.2in}
+\setlength{\parskip}{8pt}
+\noindent
