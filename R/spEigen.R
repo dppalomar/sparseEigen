@@ -172,7 +172,6 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
         rel_change <- (abs(F_v[k] - F_v[k - 1])
                        / max(1, abs(F_v[k - 1]) ) ) # relative change in objective
         if (rel_change <= tol[ee] || k >= max_iter) {
-          F_v <- F_v[1:k]
           break
         }
       }
