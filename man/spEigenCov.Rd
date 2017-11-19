@@ -2,7 +2,7 @@
 % Please edit documentation in R/spEigenCov.R
 \name{spEigenCov}
 \alias{spEigenCov}
-\title{Sparse Spectral Decomposition of a Matrix}
+\title{Covariance Matrix Estimation with Sparse Eigenvectors}
 \usage{
 spEigenCov(S, q = 1, rho = 0.5, thres = 1e-09)
 }
@@ -21,7 +21,7 @@ A list with the following components:
 \item{\code{values}  }{m-by-1 vector corresponding to eigenvalues.}
 }
 \description{
-Computes sparse (orthogonal) eigenvectors of numeric covariance or data matrices.
+Computes joitly the sparse (orthogonal) eigenvectors and the eigenvalues of numeric covariance matrices.
 }
 \references{
 K. Benidis, Y. Sun, P. Babu, D.P. Palomar "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"

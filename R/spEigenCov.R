@@ -1,6 +1,6 @@
-#' Sparse Spectral Decomposition of a Matrix
+#' Covariance Matrix Estimation with Sparse Eigenvectors
 #'
-#' Computes sparse (orthogonal) eigenvectors of numeric covariance or data matrices.
+#' Computes joitly the sparse (orthogonal) eigenvectors and the eigenvalues of numeric covariance matrices.
 #'
 #' @param S m-by-m covariance matrix.
 #' @param q number of sparse eigenvectors.
