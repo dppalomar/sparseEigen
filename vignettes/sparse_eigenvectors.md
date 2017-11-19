@@ -4,6 +4,7 @@ Konstantinos Benidis and Daniel P. Palomar
 
 
 
+-----------
 This vignette illustrates the computation of sparse eigenvectors or sparse PCA with the package `sparseEigen` (with a comparison with other packages) and gives a description of the algorithms used.
 
 
@@ -156,11 +157,8 @@ Although $\mathbf{H}^{(k)}$ does not depend directly on $\mathbf{S}$, the parame
 ## `spEigenCov()`: Covariance matrix estimation with sparse eigenvectors
 
 
-
-# References
-
-
-
-
-
-
+# References {-}
+\setlength{\parindent}{-0.2in}
+\setlength{\leftskip}{0.2in}
+\setlength{\parskip}{8pt}
+\noindent
