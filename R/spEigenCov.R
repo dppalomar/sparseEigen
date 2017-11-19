@@ -2,7 +2,7 @@
 #'
 #' Computes joitly the sparse (orthogonal) eigenvectors and the eigenvalues of numeric covariance matrices.
 #'
-#' @param S m-by-m covariance matrix.
+#' @param S m-by-m covariance matrix. It is required that \code{S} is full-rank.
 #' @param q number of sparse eigenvectors.
 #' @param rho sparsity weight factor. Any nonnegative number. Suggested range [0, 1].
 #' @param thres threshold value. All the entries of the sparse eigenvectors less or equal to \code{thres} are set to 0. The default value is \code{1e-9}.
