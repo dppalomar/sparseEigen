@@ -31,6 +31,10 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
   if (rho <= 0) stop("The input argument rho should be positive.")
   #################################
 
+  # Center the data matrix (if data = TRUE)
+  if (data == TRUE) {
+    X <- X - matrix(rep(colMeans(X), nrow(X)), nrow = nrow(X), byrow = T)
+  }
 
   # MM Parameters
   k <- 0 # MM iteration counter

@@ -41,8 +41,6 @@ R <- V %*% diag(vl) %*% t(V)
 #-------------#
 # Data Matrix #
 X <- rmvnorm(n = n, mean = rep(0, m), sigma = R) # random data with underlying sparse structure
-X <- X - matrix(rep(colMeans(X), n), nrow = n, byrow = T) # center the data
-
 
 #-------------------------------#
 # Sparse Eigenvector Extraction #
