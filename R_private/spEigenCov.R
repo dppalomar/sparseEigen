@@ -105,7 +105,7 @@ spEigenCov <- function(S, q = 1, rho = 0.5, thres = 1e-9) {
   nrm <- 1 / sqrt(colSums(V ^ 2))
   V <- matrix(rep(nrm, m), ncol = m) * V
 
-  return(list(vectors = V, values = Xi))
+  return(list(vectors = V, values = Xi, cov = V %*% diag(Xi) %*% t(V)))
 }
 
 
@@ -115,22 +115,22 @@ eigvalAlgo <- function(g, x, q) {
   m <- length(g)
   g_new <- g
   mult <- 0
-  
+
   ##### Case 1: Many sparse eigenvectors (q>1) #####
   if (q > 1) {
     while (1) {
       flg <- 0
       i <- 1
-      
+
       # Swaps among the first q-1.
       # If q is included in block swap then check the q+1:m last.
       while (i <= (q-1)) {
         if (g[i] >= g[i+1]) {
-          
+
           if (i == (q-1)) {
             flg <- 1
           }
-          
+
           # check block swaps
           j <- i + 1
           while (j <= (q-1)) {
@@ -144,7 +144,7 @@ eigvalAlgo <- function(g, x, q) {
               break
             }
           }
-          
+
           # Swaps in the first q-1
           if (flg == 0) {
             g_new[i:j] <- 1/(j-i+1) * sum(g[i:j])
@@ -152,12 +152,12 @@ eigvalAlgo <- function(g, x, q) {
           # Swaps in the first q-1 including the q-th. Check all the q+1:m
           else {
             swapInd <- which(g[q] >= g[(q+1):m]) + q
-            
+
             if (length(swapInd) == 0) {
               g_new[i:j] <- 1/(j-i+1) * sum(g[i:j])
               break
             }
-            
+
             redInd <- swapInd
             # Keep in the set the ones that are equal to a(q) from previous iterations
             if (mult == 1) {
@@ -167,7 +167,7 @@ eigvalAlgo <- function(g, x, q) {
             else {
               ind <- seq(i:q)
             }
-            
+
             while (1) {
               if (length(redInd) > 0) { # to avoid warning
                 indMin <- which(g[redInd] == min(g[redInd]))
@@ -175,7 +175,7 @@ eigvalAlgo <- function(g, x, q) {
                 redInd <- redInd[-indMin]
                 tmp <- 1/length(ind) * sum(g[ind])
               }
-              
+
               if (length(redInd) > 0) {
                 if (sum(tmp > g[redInd]) == 0) {
                   g_new[ind] = 1/length(ind) * sum(g[ind])
@@ -187,14 +187,14 @@ eigvalAlgo <- function(g, x, q) {
                 break
               }
             }
-            
+
             i <- j
           }
         }
         ##### Swaps only among the q-th and the (q+1:m) last #####
         else if ((i == (q-1)) & (flg == 0)) {
           swapInd <- which(g[q] >= g[(q+1):m]) + q
-          
+
           redInd <- swapInd
           if (mult == 1) {
             ind <- which(g[q] == g[(q+1):m]) + q
@@ -203,7 +203,7 @@ eigvalAlgo <- function(g, x, q) {
           else {
             ind <- q
           }
-          
+
           while (1) {
             if (length(redInd) > 0) {
               indMin <- which(g[redInd] == min(g[redInd]))
@@ -211,7 +211,7 @@ eigvalAlgo <- function(g, x, q) {
               redInd <- redInd[-indMin]
               tmp <- 1/length(ind) * sum(g[ind])
             }
-             
+
             if (length(redInd) > 0) {
               if (sum(tmp > g[redInd]) == 0) {
                 g_new[ind] = 1/length(ind) * sum(g[ind])
@@ -224,28 +224,28 @@ eigvalAlgo <- function(g, x, q) {
             }
           }
         }
-        
+
         i <- i + 1
       }
-      
+
       g <- g_new
-      
+
       # Stopping criteria
       if (sum(order(g)[1:q] != seq(1:q)) == 0) {
         break
       }
-      
+
       mult <- 1
     }
-    
+
     phi <- (1 + sqrt(1 + 4 * x * g)) / (2 * x)
   }
-  
+
   ##### Case 2: One sparse eigenvectors (q=1) #####
   if (q == 1) {
     while (1) {
       swapInd <- which(g[q] >= g[(q+1):m]) + q
-      
+
       redInd <- swapInd
       if (mult == 1) {
         ind <- which(g[q] == g[(q+1):m]) + q
@@ -254,7 +254,7 @@ eigvalAlgo <- function(g, x, q) {
       else {
         ind <- q
       }
-      
+
       while (1) {
         if (length(redInd) > 0) {
           indMin <- which(g[redInd] == min(g[redInd]))
@@ -262,7 +262,7 @@ eigvalAlgo <- function(g, x, q) {
           redInd <- redInd[-indMin]
           tmp <- 1/length(ind) * sum(g[ind])
         }
-       
+
         if (sum(tmp > g[redInd]) == 0) {
           g_new[ind] = 1/length(ind) * sum(g[ind])
           break
@@ -272,17 +272,17 @@ eigvalAlgo <- function(g, x, q) {
           break
         }
       }
-      
+
       g <- g_new
-      
+
       # Stopping criteria
       if (sum(order(g)[1:q] != seq(1:q)) == 0) {
         break
       }
     }
-    
+
     phi <- (1 + sqrt(1 + 4 * x * g)) / (2 * x)
   }
-  
+
   return (1 / phi)
 }

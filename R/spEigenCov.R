@@ -122,7 +122,7 @@ spEigenCov <- function(S, q = 1, rho = 0.5, thres = 1e-9) {
   nrm <- 1 / sqrt(colSums(V ^ 2))
   V <- matrix(rep(nrm, m), ncol = m) * V
 
-  return(list(vectors = V, values = Xi))
+  return(list(vectors = V, values = Xi, cov = V %*% diag(Xi) %*% t(V)))
 }
 
 
