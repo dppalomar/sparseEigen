@@ -120,7 +120,7 @@ n <- 600  # number of samples
 X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
 ```
 
-Then we compute the covariance matrix through the joint estimation of sparse eigenvectors and eigenvalues:
+Then, we compute the covariance matrix through the joint estimation of sparse eigenvectors and eigenvalues:
 ```{r}
 # computation of covariance matrix
 res_sparseCov <- spEigenCov(cov(X), q, rho)

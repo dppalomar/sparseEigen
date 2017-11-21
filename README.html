@@ -187,7 +187,7 @@ abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvect
 <div id="usage-of-speigencov" class="section level2">
 <h2>Usage of <code>spEigenCov()</code></h2>
 <p>The function <code>spEigenCov()</code> requires a full-rank covariance matrix. Therefore, we generate data as previously with the only difference that we set the number of samples to be <code>600</code>.</p>
-<p>Then we compute the covariance matrix through the joint estimation of sparse eigenvectors and eigenvalues:</p>
+<p>Then, we compute the covariance matrix through the joint estimation of sparse eigenvectors and eigenvalues:</p>
 <pre class="r"><code># computation of covariance matrix
 res_sparseCov &lt;- spEigenCov(cov(X), q, rho)</code></pre>
 <p>Again, we can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors:</p>

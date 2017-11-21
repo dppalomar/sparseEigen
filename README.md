@@ -96,7 +96,7 @@ The function `spEigenCov()` requires a full-rank covariance matrix. Therefore, w
 
 
 
-Then we compute the covariance matrix through the joint estimation of sparse eigenvectors and eigenvalues:
+Then, we compute the covariance matrix through the joint estimation of sparse eigenvectors and eigenvalues:
 
 ```r
 # computation of covariance matrix
