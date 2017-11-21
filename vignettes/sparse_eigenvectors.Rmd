@@ -7,18 +7,18 @@ csl: ieee.csl
 header-includes:
   - \setlength{\parindent}{12pt}
 output:
-  rmarkdown::html_vignette:
+  pdf_document:
     number_sections: true
     toc: yes
     toc_depth: 2
-  pdf_document:
+  rmarkdown::html_vignette:
     number_sections: true
     toc: yes
     toc_depth: 2
 vignette: >
   %\VignetteIndexEntry{Computing sparse eigenvectors}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r, echo = FALSE}
@@ -76,10 +76,9 @@ R <- V %*% diag(lmd) %*% t(V)
 
 # generate data matrix from a zero-mean multivariate Gaussian distribution with the constructed covariance
 X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
-X <- scale(X, center = TRUE, scale = FALSE)  # center the data
 ```
 
-Then we estimate the covariance matrix with `cov(X)` and compute its sparse eigenvectors:
+Then, we estimate the covariance matrix with `cov(X)` and compute its sparse eigenvectors with `spEigen()`:
 ```{r}
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
@@ -121,14 +120,52 @@ lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 ```
 
 ## Covariance matrix estimation with sparse eigenvectors
-lalala
+The function `spEigenCov()` requires a full-rank covariance matrix. Therefore, we generate data as previously with the only difference that we set the number of samples to be `600`.
+
+```{r, echo = FALSE}
+n <- 600  # number of samples
+X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
+```
+
+Then, we compute the covariance matrix through the joint estimation of sparse eigenvectors and eigenvalues:
+```{r}
+# computation of covariance matrix
+res_sparseCov <- spEigenCov(cov(X), q, rho)
+```
+
+Again, we can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors:
+```{r}
+# show inner product between estimated eigenvectors and originals
+abs(diag(t(res_sparseCov$vectors[, 1:q]) %*% V[, 1:q]))    #for sparse estimated eigenvectors
+```
+
+The following plot shows the sparsity pattern of the eigenvectors:
+```{r, fig.height = 6, fig.width = 5}
+par(mfcol = c(3, 1))
+plot(res_sparseCov$vectors[, 1]*sign(res_sparseCov$vectors[1, 1]), 
+     main = "First sparse eigenvector", xlab = "index", ylab = "", type = "h")
+lines(V[, 1]*sign(V[1, 1]), col = "red")
+plot(res_sparseCov$vectors[, 2]*sign(res_sparseCov$vectors[sp_card+1, 2]), 
+     main = "Second sparse eigenvector", xlab = "index", ylab = "", type = "h")
+lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
+plot(res_sparseCov$vectors[, 3]*sign(res_sparseCov$vectors[2*sp_card+1, 3]), 
+     main = "Third sparse eigenvector", xlab = "index", ylab = "", type = "h")
+lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
+```
+
+Finally, we can compute the RMSE of the estimated covariance matrix (sparse eigenvector computation vs. classical computation):
+```{r}
+# show RMSE between estimated and true covariance 
+norm(cov(X) - R, type = 'F') #for sample covariance matrix
+norm(res_sparseCov$cov - R, type = 'F') #for covariance with sparse eigenvectors
+```
 
 
 # Explanation of the algorithms
 
 ## `spEigen()`: Sparse eigenvectors from a given covariance matrix
 
-The goal of `spEigen()` is the estimation of the $q$ leading sparse eigenvectors (with $q \leq \text{rank}(\mathbf{S})$) from an $m\times m$ covariance matrix $\mathbf{S}$ (typically the sample covariance matrix obtained from $n$ samples) based on [@BenFenPal2018]. The underlying optimization problem that is solved is
+The goal of `spEigen()` is the estimation of the $q$ leading sparse eigenvectors (with $q \leq \text{rank}(\mathbf{S})$) from an $m\times m$ covariance matrix $\mathbf{S}$ (typically the sample covariance matrix obtained from $n$ samples) based on [@BenSunBabuPal2017]. The underlying optimization problem that is solved is
 $$\begin{aligned}
 	  &\underset{\mathbf{U}}{\text{maximize}}\quad \text{Tr} \left(\mathbf{U}^\top \mathbf{S} \mathbf{U} \text{Diag}   (\mathbf{d})\right) - \sum_{i=1}^{q}\rho_i\|\mathbf{u}_i\|_0\\
   	&\text{subject to}\quad \mathbf{U}^\top\mathbf{U}=\mathbf{I}_q,
@@ -174,7 +211,66 @@ Although $\mathbf{H}^{(k)}$ does not depend directly on $\mathbf{S}$, the parame
 
 
 
+
 ## `spEigenCov()`: Covariance matrix estimation with sparse eigenvectors
+
+The function `spEigenCov()` estimates a covariance matrix through the joint estimation of its sparse (orthogonal) eigenvectors and eigenvalues [@BenSunBabuPal2017], i.e., $\mathbf{\Sigma}=\mathbf{U}\mathbf{\Xi}\mathbf{U}^\top$, with $\mathbf{U},\mathbf{\Xi}\in\mathbb{R}^{m\times m}$ and $\mathbf{\Xi}=\text{Diag}(\xi)$. The underlying optimization problem that is solved is
+$$\begin{aligned}
+	&\underset{\mathbf{U},\mathbf{\Xi}}{\text{minimize}}\quad\log\det\left(\mathbf{\Xi}\right)+\text{Tr}\left(\mathbf{S}\mathbf{U}\mathbf{\Xi}^{-1}\mathbf{U}^\top\right) + \sum_{i=1}^{m}\rho_i\|\mathbf{u}_i\|_0\\
+		&\text{subject to}\quad \mathbf{\Xi}\succcurlyeq0,\\
+		&\hspace{25mm} \xi_{i}\geq \xi_{i+1}, \quad i=1,\dots, q-1,\\
+		&\hspace{25mm} \xi_{q}\geq \xi_{q+i}, \quad i=1,\dots,m-q,\\
+		&\hspace{25mm} \mathbf{U}^\top\mathbf{U}=\mathbf{I}_m,
+	\end{aligned}$$
+where $\mathbf{S}\in\mathbb{R}^{m\times m}$ is the sample covariance matrix and $q$ is the number of eigenvectors we impose sparsity on (i.e., $\rho_i = 0$ for $i>q$). The constraints ensure that the eigenvaleus will be positive, while the first $q$ of them will be the largest and in descending order. This is important since in case of a swap of the eigenvalues during the estimation we would impose sparsity on different eigenvectors at each iteration of the algorithm. Finally, the last constraint ensures the orthogonality of the eigenvectors.  
+
+Again, the $\ell_0$-"norm" is approximated by the continuous and differentiable function $g_p^{\epsilon}()$ which leads to the following approximate problem:
+$$\begin{aligned}
+	&\underset{\mathbf{U},\mathbf{\Xi}}{\text{minimize}}\quad\log\det\left(\mathbf{\Xi}\right)+\text{Tr}\left(\mathbf{S}\mathbf{U}\mathbf{\Xi}^{-1}\mathbf{U}^\top\right) +\sum_{j=1}^{m}\rho_j \sum_{i=1}^{m}g_p^{\epsilon}\left(u_{ij}\right)\\
+		&\text{subject to}\quad \mathbf{\Xi}\succcurlyeq0,\\
+		&\hspace{25mm} \xi_{i}\geq \xi_{i+1}, \quad i=1,\dots, q-1,\\
+		&\hspace{25mm} \xi_{q}\geq \xi_{q+i}, \quad i=1,\dots,m-q,\\
+		&\hspace{25mm} \mathbf{U}^\top\mathbf{U}=\mathbf{I}_m,
+	\end{aligned}$$
+
+This problem can be solved via Majorization-Minimization (MM) [@SunBabPal2018] with an iterative semi-closed-form update algorithm. In particular, with a proper majorization, the eigenvector and eigenvalue estimation decouples. Therefore, in each iteration we need to solve the following two problems:
+
+* Eigenvector optimization:
+  
+  $$\begin{aligned}
+		&\underset{\mathbf{U}}{\text{minimize}}\quad \text{Tr}\left({\mathbf{H}^{(k)}}^\top\mathbf{U}\right)\\
+		&\text{subject to}\quad \mathbf{U}^\top\mathbf{U}=\mathbf{I}_m,
+	\end{aligned}$$
+where $\mathbf{H}^{(k)}=\left[\text{diag}\left(\mathbf{w}^{(k)}-\mathbf{w}_{\max}^{(k)}\otimes\mathbf{1}_{m}\right)\mathbf{\tilde{u}}^{(k)}\right]_{m\times m} + \left(\mathbf{S}-\lambda_{\max}^{(\mathbf{S})}\mathbf{I}_m\right) \mathbf{U}^{(k)} \left(\mathbf{\Xi}^{(k)}\right)^{-1}$.
+Again the vector $\mathbf{w}$ is given by
+$$w_{i}^{(k)}= \begin{cases}
+		\frac{\rho_i}{2\epsilon(p+\epsilon)\log(1+1/p)},& |\tilde{u}^{(k)}_{i}|\leq\epsilon,\\
+		\frac{\rho_i}{2\log(1+1/p)|\tilde{u}^{(k)}_{i}|\left(|\tilde{u}^{(k)}_{i}|+p\right)},&                |\tilde{u}^{(k)}_{i}|>\epsilon,
+		\end{cases}$$
+with $\mathbf{w}\in\mathbb{R}_+^{m^2}$, $\mathbf{\tilde{u}}^{(k)} = \text{vec}(\mathbf{U}^{(k)})\in\mathbb{R}_+^{m^2}$, $\mathbf{w}_{\max}\in\mathbb{R}^m_+$, with $w_{\max,i}$ being the maximum weight that corresponds to the $i$-th eigenvector $\mathbf{u}^{(k)}_{i}$.
+
+The optimal solution of this problem is $\mathbf{U} = \mathbf{V}_L\mathbf{V}_R^\top$ where $\mathbf{V}_L, \mathbf{V}_R$ are the lest and right singular vectors of $\mathbf{H}^{(k)}$, repsectively.
+
+* Eigenvalue optimization:
+
+$$\begin{aligned}
+		&\underset{\mathbf{\xi}}{\text{minimize}}\quad \sum_{i=1}^{m}\left(\log\xi_i+\alpha_i^{(k)}\xi_i+\lambda_{\max}^{(\mathbf{S})}\frac{1}{\xi_i}\right)\\
+		&\text{subject to}\quad \xi_i\geq \xi_{i+1}, \quad i=1,\dots, q-1,\\
+		&\hspace{25mm} \xi_{q}\geq \xi_{q+i}, \quad i=1,\dots,m-q,
+	\end{aligned}$$
+where $\mathbf{\alpha}^{(k)} = \text{diag}\left(\left(\mathbf{\Xi}^{(k)}\right)^{-1} {\mathbf{U}^{(k)}}^T \left(\mathbf{S}-\lambda_{\max}^{(\mathbf{S})}\mathbf{I}_m\right) \mathbf{U}^{(k)} \left(\mathbf{\Xi}^{(k)}\right)^{-1}\right)$. This problem is not convex. However, it can be transformed to a convex one by	the variable transformation $\mathbf{\phi} = 1/\mathbf{\xi}$. Solving the KKT equations of the transformed convex formulation we can derive a finite-step algorithm that gives the optimal solution of the problem. 
+
+The overall iterative semi-closed-form update algorithm is:
+
+> 1. Set $k=0$ and choose an initial point $\mathbf{U}^{(0)}$  
+2. Compute $\mathbf{H}^{(k)}$  
+3. Compute $\mathbf{V}_{\text{L}}$, $\mathbf{V}_{\text{R}}$ as the left and right singular vectors of $\mathbf{H}^{(k)}$  
+4. $\mathbf{U}^{(k+1)} \gets \mathbf{V}_{\text{L}}\mathbf{V}_{\text{R}}^\top$  
+5. Compute $\mathbf{\alpha}^{(k)}$
+6. Get $\mathbf{\lambda}^{(k+1)}$ from the finite-step algorithm. 
+7. $k \gets k+1$  
+8. Repeat steps 2-7 until convergence  
+9. Return $\mathbf{U}^{(k)}$, $\mathbf{\lambda}^{(k)}$ 
 
 
 # References {-}
