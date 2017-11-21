@@ -65,7 +65,8 @@ for (i in 1:max(q, 2)) {
   tmp[ind1:ind2, i] = 1/sqrt(sp_card)
   V[, i] <- tmp[, i]
 }
-V <- qr.Q(qr(V))  # keep first q eigenvectors the same (already orthogonal) and orthogonalize the rest
+# keep first q eigenvectors the same (already orthogonal) and orthogonalize the rest
+V <- qr.Q(qr(V))  
 
 # generate eigenvalues
 lmd <- rep(1, m)
@@ -74,7 +75,8 @@ lmd[1:q] <- 100*seq(from = q, to = 1)
 # generate covariance matrix from sparse eigenvectors and eigenvalues
 R <- V %*% diag(lmd) %*% t(V)
 
-# generate data matrix from a zero-mean multivariate Gaussian distribution with the constructed covariance
+# generate data matrix from a zero-mean multivariate Gaussian distribution 
+# with the constructed covariance
 X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
 ```
 
@@ -264,13 +266,13 @@ The overall iterative semi-closed-form update algorithm is:
 
 > 1. Set $k=0$ and choose an initial point $\mathbf{U}^{(0)}$  
 2. Compute $\mathbf{H}^{(k)}$  
-3. Compute $\mathbf{V}_{\text{L}}$, $\mathbf{V}_{\text{R}}$ as the left and right singular vectors of $\mathbf{H}^{(k)}$  
+3. Compute $\mathbf{V}_{\text{L}}$, $\mathbf{V}_{\text{R}}$ as the left and right singular vectors of $\mathbf{H}^{(k)}$    
 4. $\mathbf{U}^{(k+1)} \gets \mathbf{V}_{\text{L}}\mathbf{V}_{\text{R}}^\top$  
-5. Compute $\mathbf{\alpha}^{(k)}$
-6. Get $\mathbf{\lambda}^{(k+1)}$ from the finite-step algorithm. 
+5. Compute $\mathbf{\alpha}^{(k)}$  
+6. Get $\mathbf{\lambda}^{(k+1)}$ from the finite-step algorithm   
 7. $k \gets k+1$  
 8. Repeat steps 2-7 until convergence  
-9. Return $\mathbf{U}^{(k)}$, $\mathbf{\lambda}^{(k)}$ 
+9. Return $\mathbf{U}^{(k)}$, $\mathbf{\lambda}^{(k)}$   
 
 
 # References {-}

@@ -161,7 +161,8 @@ for (i in 1:max(q, 2)) {
   tmp[ind1:ind2, i] = 1/sqrt(sp_card)
   V[, i] &lt;- tmp[, i]
 }
-V &lt;- qr.Q(qr(V))  # keep first q eigenvectors the same (already orthogonal) and orthogonalize the rest
+# keep first q eigenvectors the same (already orthogonal) and orthogonalize the rest
+V &lt;- qr.Q(qr(V))  
 
 # generate eigenvalues
 lmd &lt;- rep(1, m)
@@ -170,7 +171,8 @@ lmd[1:q] &lt;- 100*seq(from = q, to = 1)
 # generate covariance matrix from sparse eigenvectors and eigenvalues
 R &lt;- V %*% diag(lmd) %*% t(V)
 
-# generate data matrix from a zero-mean multivariate Gaussian distribution with the constructed covariance
+# generate data matrix from a zero-mean multivariate Gaussian distribution 
+# with the constructed covariance
 X &lt;- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure</code></pre>
 <p>Then, we estimate the covariance matrix with <code>cov(X)</code> and compute its sparse eigenvectors:</p>
 <pre class="r"><code># computation of sparse eigenvectors
