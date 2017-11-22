@@ -1,7 +1,7 @@
 ---
 title: "Computing sparse eigenvectors"
 author: "Konstantinos Benidis and Daniel P. Palomar"
-date: '`r Sys.Date()`'
+date: '2017-11-22'
 output:
   rmarkdown::html_vignette:
     number_sections: yes
@@ -18,17 +18,7 @@ vignette: |
   %\VignetteIndexEntry{Computing sparse eigenvectors} %\VignetteEncoding{UTF-8} %\VignetteEngine{knitr::rmarkdown}
 ---
 
-```{r, echo = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-#Vignette pdf example: https://github.com/arorar/covmat/blob/master/inst/doc/CovarianceEstimation.pdf
-#html_document:
-#  prettydoc::html_pretty:
-#    theme: cayman
-#    highlight: vignette
-```
+
 
 -----------
 This vignette illustrates the computation of sparse eigenvectors or sparse PCA with the package `sparseEigen` (with a comparison with other packages) and gives a description of the algorithms used.
@@ -42,7 +32,8 @@ hulsdhiuvhsdal
 
 ## Computation of sparse eigenvectors of a given matrix
 We start by loading the package and generating synthetic data with sparse eigenvectors:
-```{r}
+
+```r
 library(sparseEigen)
 set.seed(42)
 
@@ -72,7 +63,8 @@ X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse struct
 ```
 
 Then, we estimate the covariance matrix with `cov(X)` and compute its sparse eigenvectors with `spEigen()`:
-```{r}
+
+```r
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
 res_sparse1 <- spEigen(cov(X), q, rho)
@@ -80,16 +72,21 @@ res_sparse2 <- spEigen(X, q, rho, data = TRUE)
 ```
 
 We can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
-```{r}
+
+```r
 # show inner product between estimated eigenvectors and originals
 abs(diag(t(res_standard$vectors) %*% V[, 1:q]))   #for standard estimated eigenvectors
+#> [1] 0.9215392 0.9194898 0.9740871
 abs(diag(t(res_sparse1$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
+#> [1] 0.9971706 0.9969915 0.9924678
 abs(diag(t(res_sparse2$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
+#> [1] 0.9971059 0.9969228 0.9922912
 ```
 
 
 Finally, the following plot shows the sparsity pattern of the eigenvectors (sparse computation vs. classical computation):
-```{r, fig.height = 7, fig.width = 7}
+
+```r
 par(mfcol = c(3, 2))
 plot(res_sparse1$vectors[, 1]*sign(res_sparse1$vectors[1, 1]), 
      main = "First sparse eigenvector", xlab = "index", ylab = "", type = "h")
@@ -112,28 +109,31 @@ plot(res_standard$vectors[, 3]*sign(res_standard$vectors[2*sp_card+1, 3]),
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 ```
 
+![](C:\Users\kbenidis\AppData\Local\Temp\RtmpgJ4iTr\preview-18504b597ceb.dir\sparse_eigenvectors_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 ## Covariance matrix estimation with sparse eigenvectors
 The function `spEigenCov()` requires more samples than the dimension (otherwise some regularization is required). Therefore, we generate data as previously with the only difference that we set the number of samples to be `n=600`.
 
-```{r, echo = FALSE}
-n <- 600  # number of samples
-X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
-```
+
 
 Then, we compute the covariance matrix through the joint estimation of sparse eigenvectors and eigenvalues:
-```{r}
+
+```r
 # computation of covariance matrix
 res_sparse3 <- spEigenCov(cov(X), q, rho)
 ```
 
 Again, we can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors:
-```{r}
+
+```r
 # show inner product between estimated eigenvectors and originals
 abs(diag(t(res_sparse3$vectors[, 1:q]) %*% V[, 1:q]))    #for sparse estimated eigenvectors
+#> [1] 0.9994578 0.9990208 0.9985083
 ```
 
 The following plot shows the sparsity pattern of the eigenvectors:
-```{r, fig.height = 6, fig.width = 5}
+
+```r
 par(mfcol = c(3, 1))
 plot(res_sparse3$vectors[, 1]*sign(res_sparse3$vectors[1, 1]), 
      main = "First sparse eigenvector", xlab = "index", ylab = "", type = "h")
@@ -146,11 +146,16 @@ plot(res_sparse3$vectors[, 3]*sign(res_sparse3$vectors[2*sp_card+1, 3]),
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 ```
 
+![](C:\Users\kbenidis\AppData\Local\Temp\RtmpgJ4iTr\preview-18504b597ceb.dir\sparse_eigenvectors_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
 Finally, we can compute the error of the estimated covariance matrix (sparse eigenvector computation vs. classical computation):
-```{r}
+
+```r
 # show error between estimated and true covariance 
 norm(cov(X) - R, type = 'F') #for sample covariance matrix
+#> [1] 48.42514
 norm(res_sparse3$cov - R, type = 'F') #for covariance with sparse eigenvectors
+#> [1] 29.55455
 ```
 
 
