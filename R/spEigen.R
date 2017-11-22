@@ -1,23 +1,42 @@
 #' Sparse Spectral Decomposition of a Matrix
 #'
-#' Computes sparse (orthogonal) eigenvectors of numeric covariance or data matrices.
+#' Computes sparse (orthogonal) eigenvectors of covariance matrix or directly of data matrix.
 #'
 #' @param X m-by-m covariance matrix or n-by-m data matrix (n samples, m variables).
 #' @param q number of eigenvectors to be estimated.
-#' @param rho sparsity weight factor. Any nonnegative number. Suggested range [0, 1].
-#' @param data boolean variable. If TRUE, \code{X} is treated as a data matrix else as a covariance matrix (default).
-#' @param d 1-by-q vector with weights. The default value is \code{rep(1, q)}.
-#' @param V m-by-q initial point matrix. If not provided, the eigenvectors of the sample covariance matrix are used.
+#' @param rho sparsity weight factor. Any nonnegative number (suggested range [0,1]).
+#' @param data boolean variable. If \code{TRUE}, \code{X} is treated as a data matrix, else as a covariance matrix (default).
+#' @param d vector with q weights. The default value is \code{rep(1, q)}.
+#' @param V initial m-by-q matrix point. If not provided, the eigenvectors of the sample covariance matrix are used.
 #' @param thres threshold value. All the entries of the sparse eigenvectors less or equal to \code{thres} are set to 0. The default value is \code{1e-9}.
 #' @return A list with the following components:
-#' \item{\code{vectors}  }{m-by-q matrix, columns corresponding to leading sparse eigenvectors.}
-#' \item{\code{standard_vectors}  }{m-by-q matrix, columns corresponding to leading eigenvectors.}
-#' \item{\code{values}  }{q-by-1 vector corresponding to the leading eigenvalues.}
+#' \item{\code{vectors}}{m-by-q matrix, columns corresponding to the q leading sparse eigenvectors.}
+#' \item{\code{standard_vectors}}{m-by-q matrix, columns corresponding to standard (non-sparse) leading eigenvectors.}
+#' \item{\code{values}}{vector with the q leading eigenvalues in decreasing order.}
 #' @author Konstantinos Benidis and Daniel P. Palomar
 #' @references
 #' K. Benidis, Y. Sun, P. Babu, D.P. Palomar "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
 #' IEEE Transactions on Signal Processing, vol 64, no. 23, pp. 6211-6226, Dec. 2016.
 #' @examples
+#' library(sparseEigen)
+#' n <- 100  # samples
+#' m <- 500  # dimension
+#' q <- 3  # number of sparse eigenvectors to be estimated
+#' sp_card <- 0.1*m  # sparsity of each eigenvector
+#'
+#' # generate covariance matrix with sparse eigenvectors
+#' V <- matrix(0, m, q)
+#' V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 1/sqrt(sp_card)
+#' V <- cbind(V, matrix(rnorm(m*(m-q)), m, m-q))
+#' V <- qr.Q(qr(V))  # orthogonalize eigenvectors
+#' lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))  # generate eigenvalues
+#' R <- V %*% diag(lmd) %*% t(V)  # covariance matrix
+#' X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
+#' res_standard <- eigen(cov(X))
+#' res_sparse <- spEigen(cov(X), q, rho)
+#' # show inner product between estimated eigenvectors and originals (the closer to 1 the better)
+#' abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
+#' abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
 #' @importFrom gmodels fast.svd
 #' @export
 spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1e-9) {

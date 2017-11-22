@@ -54,20 +54,14 @@ sp_card <- 0.2*m  # cardinality of each sparse eigenvector
 rho <- 0.6  # sparsity level
 
 # generate non-overlapping sparse eigenvectors
-V <- matrix(rnorm(m^2), ncol = m)
-tmp <- matrix(0, m, q)
-for (i in 1:max(q, 2)) {
-  ind1 <- (i - 1)*sp_card + 1
-  ind2 <- i*sp_card
-  tmp[ind1:ind2, i] = 1/sqrt(sp_card)
-  V[, i] <- tmp[, i]
-}
+V <- matrix(0, m, q)
+V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 1/sqrt(sp_card)
+V <- cbind(V, matrix(rnorm(m*(m-q)), m, m-q))
 # keep first q eigenvectors the same (already orthogonal) and orthogonalize the rest
 V <- qr.Q(qr(V))  
 
 # generate eigenvalues
-lmd <- rep(1, m)
-lmd[1:q] <- 100*seq(from = q, to = 1)
+lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))
 
 # generate covariance matrix from sparse eigenvectors and eigenvalues
 R <- V %*% diag(lmd) %*% t(V)
