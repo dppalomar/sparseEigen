@@ -53,26 +53,22 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
   #################################
 
   # Center the data matrix (if data = TRUE)
-  if (data == TRUE)
+  if (data)
     X <- scale(X, center = TRUE, scale = FALSE)
 
   # Input parameter d: vector of weights
-  if (is.na(d)) {
-    if (q < m)
-      d <- rep(1, q)
-    else
-      d <- seq(from = 1, to = 0.1, length.out = 100)
-  }
+  if (is.na(d))
+    d <- seq(from = 1, to = 0.1, length.out = q)
 
   # Sparsity parameter rho
   svd_x <- fast.svd(X)
-  if (data == FALSE) {
-    sv2 <- svd_x$d
-    rho <- rho * max(diag(X)) * (sv2[1:q] / sv2[1]) * d
-  }
-  else {
+  if (data) {
     sv2 <- svd_x$d ^ 2
     rho <- rho * max(colSums(X ^ 2)) * (sv2[1:q] / sv2[1]) * d
+  }
+  else {
+    sv2 <- svd_x$d
+    rho <- rho * max(diag(X)) * (sv2[1:q] / sv2[1]) * d
   }
 
   # Input parameter V: initial point
@@ -82,24 +78,24 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
   # Preallocation
   V_tld <- matrix(0, m, q)
   H <- matrix(0, m, q)
-  F_v <- matrix(0, max_iter, 1) # objective value
+  F_v <- matrix(0, max_iter, 1)  # objective value
   g <- matrix(0, m, q)
 
   # Decreasing epsilon, p
   K <- 10
-  p1 <- 1 # first value of p
-  pk <- 7 # last value of p
+  p1 <- 1  # first value of p
+  pk <- 7  # last value of p
   gamma <- (pk / p1) ^ (1 / K)
   pp <- p1 * gamma ^ (0:K)
   pp <- 10 ^ (-pp)
 
-  tol <- pp * 1e-2 # tolerance for convergence
-  Eps <- pp # epsilon
+  tol <- pp * 1e-2  # tolerance for convergence
+  Eps <- pp  # epsilon
 
 
   ######################### MM LOOP #########################
   k <- 0  # MM iteration counter
-  for (ee in 1:(K + 1)) {
+  for (ee in 1:(K + 1)) {  # loop for approximation based on p & epsilon
     p <- pp[ee]
     epsi <- Eps[ee]
     c1 <- log(1 + 1 / p)
@@ -170,15 +166,13 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
         g[abs(V0) <= epsi] <- V0[abs(V0) <= epsi] ^ 2 / (epsi * c2)
         g[abs(V0) > epsi] <- (log( (p + abs(V0[abs(V0) > epsi]) ) / (p + epsi) )
                               / c1 + epsi / c2)
-        if (data == FALSE)
-          F_v[k] <- diag(t(V0) %*% X %*% V0) %*% d - colSums(g) %*% rho
-        else
+        if (data)
           F_v[k] <- colSums( (X %*% V0) ^ 2) %*% d - colSums(g) %*% rho
+        else
+          F_v[k] <- diag(t(V0) %*% X %*% V0) %*% d - colSums(g) %*% rho
 
-
-        if (flg == 0 && F_v[k] * (1 + sign(F_v[k]) * 1e-9) <= F_v[max(k - 1, 1)]) {
+        if (flg == 0 && F_v[k] * (1 + sign(F_v[k]) * 1e-9) <= F_v[max(k - 1, 1)])
           a <- (a - 1) / 2
-        }
         else {
           V <- V0
           break
@@ -189,9 +183,8 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
       if (flg == 0) {
         rel_change <- (abs(F_v[k] - F_v[k - 1])
                        / max(1, abs(F_v[k - 1]) ) ) # relative change in objective
-        if (rel_change <= tol[ee] || k >= max_iter) {
+        if (rel_change <= tol[ee] || k >= max_iter)
           break
-        }
       }
       flg <- 0
     }
