@@ -1,6 +1,8 @@
 ---
 title: "sparseEigen"
 output:
+  md_document:
+    variant: markdown_github
   html_document:
     variant: markdown_github
     keep_md: true
@@ -22,10 +24,7 @@ This package provides functions to compute sparse eigenvectors (while keeping th
 
 ## Installation
 ```{r, eval = FALSE}
-# Installation from local file
-install.packages(file.choose(), repos = NULL, type="source")
-
-# Or from GitHub
+# Installation from GitHub
 # install.packages("devtools")
 devtools::install_github("dppalomar/sparseEigen")
 
@@ -36,9 +35,7 @@ help(package="sparseEigen")
 ```
 
 
-## Usage of `spEig()`
-
-The following is a simple illustrative example.
+## Usage of `spEigen()`
 
 We start by loading the package and generating synthetic data with sparse eigenvectors:
 ```{r}
@@ -72,7 +69,7 @@ lmd[1:q] <- 100*seq(from = q, to = 1)
 R <- V %*% diag(lmd) %*% t(V)
 
 # generate data matrix from a zero-mean multivariate Gaussian distribution 
-# with the constructed covariance
+# with the constructed covariance matrix
 X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
 ```
 Then, we estimate the covariance matrix with `cov(X)` and compute its sparse eigenvectors:
@@ -115,7 +112,7 @@ lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 
 ## Usage of `spEigenCov()`
 
-The function `spEigenCov()` requires a full-rank covariance matrix. Therefore, we generate data as previously with the only difference that we set the number of samples to be `600`.
+The function `spEigenCov()` requires more samples than the dimension (otherwise some regularization is required). Therefore, we generate data as previously with the only difference that we set the number of samples to be `n=600`.
 
 ```{r, echo = FALSE}
 n <- 600  # number of samples
@@ -125,20 +122,20 @@ X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse struct
 Then, we compute the covariance matrix through the joint estimation of sparse eigenvectors and eigenvalues:
 ```{r}
 # computation of covariance matrix
-res_sparseCov <- spEigenCov(cov(X), q, rho)
+res_sparse2 <- spEigenCov(cov(X), q, rho)
 ```
 
 Again, we can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors:
 ```{r}
 # show inner product between estimated eigenvectors and originals
-abs(diag(t(res_sparseCov$vectors[, 1:q]) %*% V[, 1:q]))    #for sparse estimated eigenvectors
+abs(diag(t(res_sparse2$vectors[, 1:q]) %*% V[, 1:q]))    #for sparse estimated eigenvectors
 ```
 
-Finally, we can compute the RMSE of the estimated covariance matrix:
+Finally, we can compute the error of the estimated covariance matrix (sparse eigenvector computation vs. classical computation):
 ```{r}
-# show RMSE between estimated and true covariance 
+# show error between estimated and true covariance 
 norm(cov(X) - R, type = 'F') #for sample covariance matrix
-norm(res_sparseCov$cov - R, type = 'F') #for covariance with sparse eigenvectors
+norm(res_sparse2$cov - R, type = 'F') #for covariance with sparse eigenvectors
 ```
 
 
