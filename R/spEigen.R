@@ -40,24 +40,21 @@
 #' @importFrom gmodels fast.svd
 #' @export
 spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1e-9) {
-  m <- ncol(X)
+  max_iter <- 1000 # maximum MM iterations
 
   ######## error control  #########
+  X <- as.matrix(X)
+  m <- ncol(X)
   if (m == 1) stop("Data is univariate!")
   if (q > qr(X)$rank) stop("The number of estimated eigenvectors q should not be larger than rank(X).")
   if (anyNA(X) || anyNA(q) || anyNA(rho)) stop("This function cannot handle NAs.")
-  if ( (q %% 1) != 0 || q <= 0) stop("The input argument q should be a positive integer.")
+  if ((q %% 1) != 0 || q <= 0) stop("The input argument q should be a positive integer.")
   if (rho <= 0) stop("The input argument rho should be positive.")
   #################################
 
   # Center the data matrix (if data = TRUE)
-  if (data == TRUE) {
-    X <- X - matrix(rep(colMeans(X), nrow(X)), nrow = nrow(X), byrow = T)
-  }
-
-  # MM Parameters
-  k <- 0 # MM iteration counter
-  max_iter <- 1000 # maximum MM iterations
+  if (data == TRUE)
+    X <- scale(X, center = TRUE, scale = FALSE)
 
   # Input parameter d: vector of weights
   if (is.na(d)) {
@@ -68,21 +65,19 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
   }
 
   # Sparsity parameter rho
+  svd_x <- fast.svd(X)
   if (data == FALSE) {
-    svd_x <- fast.svd(X)
     sv2 <- svd_x$d
     rho <- rho * max(diag(X)) * (sv2[1:q] / sv2[1]) * d
   }
   else {
-    svd_x <- fast.svd(X)
     sv2 <- svd_x$d ^ 2
     rho <- rho * max(colSums(X ^ 2)) * (sv2[1:q] / sv2[1]) * d
   }
 
   # Input parameter V: initial point
-  if (is.na(V)) {
+  if (is.na(V))
     V <- svd_x$v[, 1:q]
-  }
 
   # Preallocation
   V_tld <- matrix(0, m, q)
@@ -103,7 +98,7 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
 
 
   ######################### MM LOOP #########################
-
+  k <- 0  # MM iteration counter
   for (ee in 1:(K + 1)) {
     p <- pp[ee]
     epsi <- Eps[ee]
@@ -202,8 +197,8 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
     }
   }
 
-  V[abs(V) < thres] <- 0 # threshold
-  nrm <- 1 / sqrt(colSums(V ^ 2))
+  V[abs(V) < thres] <- 0  # threshold
+  nrm <- 1 / sqrt(colSums(V^2))
   V <- matrix(rep(nrm, m), ncol = q) * V
 
   return(list(vectors = V, standard_vectors = svd_x$v[, 1:q], values = ifelse(rep(data,q), sv2[1:q] / (nrow(X) - 1), sv2[1:q])))
