@@ -11,7 +11,7 @@ spEigenCov(S, q = 1, rho = 0.5, thres = 1e-09)
 
 \item{q}{number of sparse eigenvectors.}
 
-\item{rho}{sparsity weight factor. Any nonnegative number. Suggested range [0, 1].}
+\item{rho}{sparsity weight factor. Any nonnegative number (suggested range [0,1]).}
 
 \item{thres}{threshold value. All the entries of the sparse eigenvectors less or equal to \code{thres} are set to 0. The default value is \code{1e-9}.}
 }
