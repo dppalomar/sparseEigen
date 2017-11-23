@@ -32,20 +32,14 @@ sp_card <- 0.1*m  # cardinality of each sparse eigenvector
 rho <- 0.5  # sparsity level
 
 # generate non-overlapping sparse eigenvectors
-V <- matrix(rnorm(m^2), ncol = m)
-tmp <- matrix(0, m, q)
-for (i in 1:max(q, 2)) {
-  ind1 <- (i - 1)*sp_card + 1
-  ind2 <- i*sp_card
-  tmp[ind1:ind2, i] = 1/sqrt(sp_card)
-  V[, i] <- tmp[, i]
-}
+V <- matrix(0, m, q)
+V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 1/sqrt(sp_card)
+V <- cbind(V, matrix(rnorm(m*(m-q)), m, m-q))
 # keep first q eigenvectors the same (already orthogonal) and orthogonalize the rest
 V <- qr.Q(qr(V))  
 
 # generate eigenvalues
-lmd <- rep(1, m)
-lmd[1:q] <- 100*seq(from = q, to = 1)
+lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))
 
 # generate covariance matrix from sparse eigenvectors and eigenvalues
 R <- V %*% diag(lmd) %*% t(V)
@@ -68,9 +62,9 @@ We can assess how good the estimated eigenvectors are by computing the inner pro
 ``` r
 # show inner product between estimated eigenvectors and originals
 abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
-#> [1] 0.9726306 0.9488030 0.9623054
+#> [1] 0.9215392 0.9194898 0.9740871
 abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
-#> [1] 0.9993552 0.9981691 0.9971995
+#> [1] 0.9987288 0.9990260 0.9972010
 ```
 
 Finally, the following plot shows the sparsity pattern of the eigenvectors (sparse computation vs. classical computation): ![](man/figures/README-unnamed-chunk-6-1.png)
@@ -92,7 +86,7 @@ Again, we can assess how good the estimated eigenvectors are by computing the in
 ``` r
 # show inner product between estimated eigenvectors and originals
 abs(diag(t(res_sparse2$vectors[, 1:q]) %*% V[, 1:q]))    #for sparse estimated eigenvectors
-#> [1] 0.9998902 0.9996035 0.9996138
+#> [1] 0.9997788 0.9996302 0.9994141
 ```
 
 Finally, we can compute the error of the estimated covariance matrix (sparse eigenvector computation vs. classical computation):
@@ -100,7 +94,7 @@ Finally, we can compute the error of the estimated covariance matrix (sparse eig
 ``` r
 # show error between estimated and true covariance 
 norm(cov(X) - R, type = 'F') #for sample covariance matrix
-#> [1] 42.60926
+#> [1] 48.42514
 norm(res_sparse2$cov - R, type = 'F') #for covariance with sparse eigenvectors
-#> [1] 28.85324
+#> [1] 25.15724
 ```

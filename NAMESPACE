@@ -2,4 +2,3 @@
 
 export(spEigen)
 export(spEigenCov)
-importFrom(gmodels,fast.svd)
