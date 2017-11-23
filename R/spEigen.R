@@ -2,7 +2,7 @@
 #'
 #' Computes sparse (orthogonal) eigenvectors of covariance matrix or directly of data matrix.
 #'
-#' @param X m-by-m covariance matrix or n-by-m data matrix (n samples, m variables).
+#' @param X m-by-m covariance matrix or n-by-m data matrix (n samples, m variables). Both real and complex matrices are accepted.
 #' @param q number of eigenvectors to be estimated.
 #' @param rho sparsity weight factor. Any nonnegative number (suggested range [0,1]).
 #' @param data boolean variable. If \code{TRUE}, \code{X} is treated as a data matrix, else as a covariance matrix (default).
@@ -42,7 +42,6 @@
 #' # show inner product between estimated eigenvectors and originals (the closer to 1 the better)
 #' abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
 #' abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
-#' @importFrom gmodels fast.svd
 #' @export
 spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1e-9) {
   max_iter <- 1000 # maximum MM iterations
@@ -63,36 +62,37 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
 
   # Input parameter d: vector of weights
   if (is.na(d))
-    d <- seq(from = 1, to = 0.1, length.out = q)
+    d <- seq(from = 1, to = 0.5, length.out = q)
 
   # Sparsity parameter rho
-  svd_x <- fast.svd(X)
   if (data) {
-    sv2 <- svd_x$d ^ 2
-    rho <- rho * max(colSums(X ^ 2)) * (sv2[1:q] / sv2[1]) * d
+    svd_x <- svd(X)
+    sv2 <- svd_x$d^2
+    Vx <- svd_x$v
+    rho <- rho * max(colSums(abs(X)^2)) * (sv2[1:q]/sv2[1]) * d
   }
   else {
-    sv2 <- svd_x$d
-    rho <- rho * max(diag(X)) * (sv2[1:q] / sv2[1]) * d
+    eig_x <- eigen(X)
+    sv2 <- eig_x$values
+    Vx <- eig_x$vectors
+    rho <- rho * max(Re(diag(X))) * (sv2[1:q]/sv2[1]) * d
   }
 
   # Input parameter V: initial point
   if (is.na(V))
-    V <- svd_x$v[, 1:q]
+    V <- Vx[, 1:q]
 
   # Preallocation
-  V_tld <- matrix(0, m, q)
-  H <- matrix(0, m, q)
   F_v <- matrix(0, max_iter, 1)  # objective value
   g <- matrix(0, m, q)
 
   # Decreasing epsilon, p
-  K <- 10
-  p1 <- 1  # first value of p
-  pk <- 7  # last value of p
-  gamma <- (pk / p1) ^ (1 / K)
-  pp <- p1 * gamma ^ (0:K)
-  pp <- 10 ^ (-pp)
+  K <- 10  # number of outer iterations
+  p1 <- 1  # first value of -log(p)
+  pk <- 7  # last value of -log(p)
+  gamma <- (pk/p1)^(1/K)
+  pp <- p1 * gamma^(0:K)
+  pp <- 10^(-pp)
 
   tol <- pp * 1e-2  # tolerance for convergence
   Eps <- pp  # epsilon
@@ -100,84 +100,41 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
 
   ######################### MM LOOP #########################
   k <- 0  # MM iteration counter
-  for (ee in 1:(K + 1)) {  # loop for approximation based on p & epsilon
+  for (ee in 1:(K+1)) {  # loop for approximation based on p & epsilon
     p <- pp[ee]
     epsi <- Eps[ee]
-    c1 <- log(1 + 1 / p)
+    c1 <- log(1 + 1/p)
     c2 <- 2 * (p + epsi) * c1
-    w0 <- (1 / (epsi * c2)) * rep(1, m * q)
+    w0 <- (1/(epsi * c2)) * rep(1, m*q)
     flg <- 1
 
     while (1) {
       k <- k + 1
 
-      #-------------------------------------#
-      # First iteration of the acceleration #
-
-      # weights
-      w <- w0
-      ind <- abs(c(V)) > epsi
-      w[ind] <- (0.5 / c1) / (V[ind] ^ 2 + p * abs(V[ind]))
-
-      # MM
-      for (i in 1:q) {
-        w_tmp <- w[( (i - 1) * m + 1):(i * m)]
-        V_tld[, i] <- V[, i] * d[i]
-        H[, i] <- (w_tmp - max(w_tmp) * rep(1, m)) * V[, i] * rho[i]
-      }
-
-      G <- svd_x$v %*% ( (t(svd_x$v) %*% V_tld) * matrix(rep(sv2, q), ncol = q) )
-
-      # update
-      s1 <- fast.svd(G - H)
-      V1 <- s1$u %*% t(s1$v)
-
-      #--------------------------------------#
-      # Second iteration of the acceleration #
-
-      # weights
-      w <- w0
-      ind <- abs(c(V1)) > epsi
-      w[ind] <- (0.5 / c1) / (V1[ind] ^ 2 + p * abs(V1[ind]))
-
-      # MM
-      for (i in 1:q) {
-        w_tmp <- w[( (i - 1) * m + 1):(i * m)]
-        V_tld[, i] <- V1[, i] * d[i]
-        H[, i] <- (w_tmp - max(w_tmp) * rep(1, m)) * V1[, i] * rho[i]
-      }
-
-      G <- svd_x$v %*% ( (t(svd_x$v) %*% V_tld) * matrix(rep(sv2, q), ncol = q) )
-
-      # update
-      s2 <- fast.svd(G - H)
-      V2 <- s2$u %*% t(s2$v)
-
-      #--------------#
-      # Acceleration #
-
+      # Acceleration double step
+      V1 <- spEigenMMupdate(V, d, rho, Vx, sv2, w0, c1, p, epsi, m, q)
+      V2 <- spEigenMMupdate(V1, d, rho, Vx, sv2, w0, c1, p, epsi, m, q)
       R <- V1 - V
       U <- V2 - V1 - R
-      a <- min(-norm(R, type = "F") / norm(U, type = "F"), -1)
+      a <- min(-norm(abs(R), type = "F") / norm(abs(U), type = "F"), -1)
 
-      # backtracking loop
+      # backtracking loop to ensure feasibility
       while (1) {
-        V0 <- V - 2 * a * R + a ^ 2 * U
+        V0 <- V - 2*a*R + a^2 * U
 
         # Projection
-        s3 <- fast.svd(V0)
-        V0 <- s3$u %*% t(s3$v)
+        s <- svd(V0)
+        V0 <- s$u %*% h(s$v)
 
-        g[abs(V0) <= epsi] <- V0[abs(V0) <= epsi] ^ 2 / (epsi * c2)
-        g[abs(V0) > epsi] <- (log( (p + abs(V0[abs(V0) > epsi]) ) / (p + epsi) )
-                              / c1 + epsi / c2)
+        g[abs(V0) <= epsi] <- abs(V0[abs(V0) <= epsi])^2 / (epsi*c2)
+        g[abs(V0) > epsi] <- log((p + abs(V0[abs(V0) > epsi]))/(p + epsi))/c1 + epsi/c2
         if (data)
-          F_v[k] <- colSums( (X %*% V0) ^ 2) %*% d - colSums(g) %*% rho
+          F_v[k] <- colSums(abs(X %*% V0)^2) %*% d - colSums(g) %*% rho
         else
-          F_v[k] <- diag(t(V0) %*% X %*% V0) %*% d - colSums(g) %*% rho
+          F_v[k] <- Re(diag(h(V0) %*% X %*% V0)) %*% d - colSums(g) %*% rho
 
-        if (flg == 0 && F_v[k] * (1 + sign(F_v[k]) * 1e-9) <= F_v[max(k - 1, 1)])
-          a <- (a - 1) / 2
+        if (flg == 0 && F_v[k] * (1 + sign(F_v[k])*1e-9) <= F_v[max(k - 1, 1)])
+          a <- (a-1)/2
         else {
           V <- V0
           break
@@ -186,8 +143,7 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
 
       # Stopping criterion
       if (flg == 0) {
-        rel_change <- (abs(F_v[k] - F_v[k - 1])
-                       / max(1, abs(F_v[k - 1]) ) ) # relative change in objective
+        rel_change <- (abs(F_v[k] - F_v[k - 1]) / max(1, abs(F_v[k - 1]) ) ) # relative change in objective
         if (rel_change <= tol[ee] || k >= max_iter)
           break
       }
@@ -196,8 +152,34 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
   }
 
   V[abs(V) < thres] <- 0  # threshold
-  nrm <- 1 / sqrt(colSums(V^2))
+  nrm <- 1 / sqrt(colSums(abs(V)^2))
   V <- matrix(rep(nrm, m), ncol = q) * V
 
-  return(list(vectors = V, standard_vectors = svd_x$v[, 1:q], values = ifelse(rep(data,q), sv2[1:q] / (nrow(X) - 1), sv2[1:q])))
+  return(list(vectors = V, standard_vectors = Vx[, 1:q], values = ifelse(rep(data,q), sv2[1:q] / (nrow(X) - 1), sv2[1:q])))
+}
+
+
+# MM update in ecah iteration
+spEigenMMupdate <- function(V, d, rho, Vx, sv2, w0, c1, p, epsi, m, q) {
+
+  # weights
+  w <- w0
+  absV <- abs(V)
+  ind <- c(absV) > epsi
+  w[ind] <- (0.5/c1) / (absV[ind]^2 + p*absV[ind])
+
+  # calculation of H, G
+  H <- (matrix(w, ncol=q) - rep(apply(matrix(w, ncol=q), 2, max), each = m)) * V * rep(rho, each = m)
+  G <- Vx %*% ( (h(Vx) %*% (V * rep(d, each = m))) * matrix(rep(sv2, q), ncol = q) )  # Vx %*% diag(sv2) %*% t(Vx) %*% V * diag(sv2)
+
+  # update
+  s <- svd(G - H)
+
+  return (Uk = s$u %*% h(s$v))
+}
+
+
+# Hermitian
+h <- function(x) {
+  return(Conj(t(x)))
 }

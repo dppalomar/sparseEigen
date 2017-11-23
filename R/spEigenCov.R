@@ -118,7 +118,7 @@ spEigenCov <- function(S, q = 1, rho = 0.5, thres = 1e-9) {
       H2 <- S_hat %*% A
 
       # Procrustes update
-      s <- fast.svd(-(H1 + H2))
+      s <- svd(-(H1 + H2))
       V <- s$u %*% t(s$v)
 
       ##### EIGENVALUE UPDATE #####

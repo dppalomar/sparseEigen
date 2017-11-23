@@ -23,6 +23,36 @@ A list with the following components:
 \description{
 Computes joitly the sparse (orthogonal) eigenvectors and the eigenvalues of numeric covariance matrices.
 }
+\examples{
+library(sparseEigen)
+n <- 600  # samples
+m <- 500  # dimension
+q <- 3  # number of sparse eigenvectors to be estimated
+sp_card <- 0.1*m  # sparsity of each eigenvector
+
+# generate covariance matrix with sparse eigenvectors
+V <- matrix(0, m, q)
+V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 1/sqrt(sp_card)
+V <- cbind(V, matrix(rnorm(m*(m-q)), m, m-q))
+V <- qr.Q(qr(V))  # orthogonalize eigenvectors
+lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))  # generate eigenvalues
+R <- V \%*\% diag(lmd) \%*\% t(V)  # covariance matrix
+
+# generate dats
+X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
+
+# standard and spase estimation
+res_standard <- eigen(cov(X))
+res_sparse <- spEigenCov(cov(X), q, rho)
+
+# show inner product between estimated eigenvectors and originals (the closer to 1 the better)
+abs(diag(t(res_standard$vectors) \%*\% V[, 1:q]))  #for standard estimated eigenvectors
+abs(diag(t(res_sparse$vectors) \%*\% V[, 1:q]))    #for sparse estimated eigenvectors
+
+# show error between estimated and true covariance
+norm(cov(X) - R, type = 'F') #for sample covariance matrix
+norm(res_sparse$cov - R, type = 'F') #for covariance with sparse eigenvectors
+}
 \references{
 K. Benidis, Y. Sun, P. Babu, D.P. Palomar "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
 IEEE Transactions on Signal Processing, vol 64, no. 23, pp. 6211-6226, Dec. 2016.
