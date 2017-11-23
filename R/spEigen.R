@@ -31,9 +31,14 @@
 #' V <- qr.Q(qr(V))  # orthogonalize eigenvectors
 #' lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))  # generate eigenvalues
 #' R <- V %*% diag(lmd) %*% t(V)  # covariance matrix
+#'
+#' # generate data
 #' X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
+#'
+#' # standardand sparse eigenvectors
 #' res_standard <- eigen(cov(X))
 #' res_sparse <- spEigen(cov(X), q, rho)
+#'
 #' # show inner product between estimated eigenvectors and originals (the closer to 1 the better)
 #' abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
 #' abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
