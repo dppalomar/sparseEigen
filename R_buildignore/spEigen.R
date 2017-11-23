@@ -39,12 +39,12 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
   g <- matrix(0, m, q)
 
   # Decreasing epsilon, p
-  K <- 10
+  K <- 10  # number of outer iterations
   p1 <- 1  # first value of -log(p)
   pk <- 7  # last value of -log(p)
-  gamma <- (pk / p1) ^ (1 / K)
-  pp <- p1 * gamma ^ (0:K)
-  pp <- 10 ^ (-pp)
+  gamma <- (pk/p1)^(1/K)
+  pp <- p1 * gamma^(0:K)
+  pp <- 10^(-pp)
 
   tol <- pp * 1e-2  # tolerance for convergence
   Eps <- pp  # epsilon
@@ -52,31 +52,25 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
 
   ######################### MM LOOP #########################
   k <- 0  # MM iteration counter
-  for (ee in 1:(K + 1)) {  # loop for approximation based on p & epsilon
+  for (ee in 1:(K+1)) {  # loop for approximation based on p & epsilon
     p <- pp[ee]
     epsi <- Eps[ee]
-    c1 <- log(1 + 1 / p)
+    c1 <- log(1 + 1/p)
     c2 <- 2 * (p + epsi) * c1
-    w0 <- (1 / (epsi * c2)) * rep(1, m * q)
+    w0 <- (1 / (epsi * c2)) * rep(1, m*q)
     flg <- 1
 
     while (1) {
       k <- k + 1
 
-      # First iteration of the acceleration
+      # Acceleration double step
       V1 <- spEigenMMupdate(V, d, rho, svd_x, sv2, w0, c1, p, epsi, m, q)
-
-      # Second iteration of the acceleration
       V2 <- spEigenMMupdate(V1, d, rho, svd_x, sv2, w0, c1, p, epsi, m, q)
-
-      #--------------#
-      # Acceleration #
-
       R <- V1 - V
       U <- V2 - V1 - R
       a <- min(-norm(R, type = "F") / norm(U, type = "F"), -1)
 
-      # backtracking loop
+      # backtracking loop to ensure feasibility
       while (1) {
         V0 <- V - 2 * a * R + a ^ 2 * U
 
@@ -85,8 +79,7 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
         V0 <- s$u %*% t(s$v)
 
         g[abs(V0) <= epsi] <- V0[abs(V0) <= epsi] ^ 2 / (epsi * c2)
-        g[abs(V0) > epsi] <- (log( (p + abs(V0[abs(V0) > epsi]) ) / (p + epsi) )
-                              / c1 + epsi / c2)
+        g[abs(V0) > epsi] <- (log( (p + abs(V0[abs(V0) > epsi]) ) / (p + epsi) ) / c1 + epsi/c2)
         if (data)
           F_v[k] <- colSums( (X %*% V0) ^ 2) %*% d - colSums(g) %*% rho
         else
@@ -102,8 +95,7 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
 
       # Stopping criterion
       if (flg == 0) {
-        rel_change <- (abs(F_v[k] - F_v[k - 1])
-                       / max(1, abs(F_v[k - 1]) ) ) # relative change in objective
+        rel_change <- (abs(F_v[k] - F_v[k - 1]) / max(1, abs(F_v[k - 1]) ) ) # relative change in objective
         if (rel_change <= tol[ee] || k >= max_iter)
           break
       }
@@ -126,20 +118,23 @@ spEigenMMupdate <- function(V, d, rho, svd_x, sv2, w0, c1, p, epsi, m, q) {
 
   # weights
   w <- w0
-  ind <- abs(c(V)) > epsi
-  w[ind] <- (0.5 / c1) / (V[ind] ^ 2 + p * abs(V[ind]))
+  absV <- abs(V)
+  ind <- c(absV) > epsi
+  w[ind] <- (0.5/c1) / (absV[ind]^2 + p*absV[ind])
 
   # MM
   for (i in 1:q) {
-    w_tmp <- w[( (i - 1) * m + 1):(i * m)]
+    w_tmp <- w[( (i-1)*m + 1):(i*m)]
     V_tld[, i] <- V[, i] * d[i]
-    H[, i] <- (w_tmp - max(w_tmp) * rep(1, m)) * V[, i] * rho[i]
+    H[, i] <- (w_tmp - rep(max(w_tmp), m)) * V[, i] * rho[i]
   }
+  V_tld_ <- V * rep(d, each = m)
+  browser()
 
-  G <- svd_x$v %*% ( (t(svd_x$v) %*% V_tld) * matrix(rep(sv2, q), ncol = q) )
+  G <- svd_x$v %*% ( (t(svd_x$v) %*% V_tld) * matrix(rep(sv2, q), ncol = q) )  # svd_x$v %*% diag(sv2) %*% t(svd_x$v) %*% V_tld
 
   # update
   s <- fast.svd(G - H)
 
-  return (s$u %*% t(s$v))
+  return (Uk = s$u %*% t(s$v))
 }
