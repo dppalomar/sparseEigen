@@ -14,7 +14,7 @@ spEigenCov <- function(S, q = 1, rho = 0.5, thres = 1e-9) {
 
   # EVD
   S_evd <- eigen(S)
-  if (sum(S_evd$values > 1e-9) < m) stop("The covariance matrix is low-rank.")
+  if (sum(S_evd$values > 1e-9) < m) stop("The covariance matrix is low-rank and/or not positive definite.")
   V <- S_evd$vectors
   Xi <- S_evd$values
   Xi_max <- Xi[1]
