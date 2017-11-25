@@ -47,9 +47,9 @@ X <- X - matrix(rep(colMeans(X), n), nrow = n, byrow = T) # center the data
 # Sparse Eigenvector Extraction #
 res_standard <- eigen(cov(X))
 res_sparse <- spEigen(X, q, rho, data = TRUE)
-# if (n > m) {
+if (n > m) {
   res_sparseCov <- spEigenCov(cov(X), q, rho)
-# }
+}
 
 #-------#
 # Plots #
