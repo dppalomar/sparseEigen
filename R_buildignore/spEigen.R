@@ -5,7 +5,6 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
   X <- as.matrix(X)
   m <- ncol(X)
   if (m == 1) stop("Data is univariate!")
-  if (q > qr(X)$rank) stop("The number of estimated eigenvectors q should not be larger than rank(X).")
   if (anyNA(X) || anyNA(q) || anyNA(rho)) stop("This function cannot handle NAs.")
   if ((q %% 1) != 0 || q <= 0) stop("The input argument q should be a positive integer.")
   if (rho <= 0) stop("The input argument rho should be positive.")
@@ -22,12 +21,15 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
   # Sparsity parameter rho
   if (data) {
     svd_x <- svd(X)
+    if (q > sum(svd_x$d > 1e-9)) stop("The number of estimated eigenvectors q should not be larger than rank(X).")
     sv2 <- svd_x$d^2
     Vx <- svd_x$v
     rho <- rho * max(colSums(abs(X)^2)) * (sv2[1:q]/sv2[1]) * d
   }
   else {
+    if (!isSymmetric.matrix(S)) stop("The covariance matrix is not symmetric")
     eig_x <- eigen(X)
+    if (q > sum(eig_x$values > 1e-9)) stop("The number of estimated eigenvectors q should not be larger than rank(X).")
     sv2 <- eig_x$values
     Vx <- eig_x$vectors
     rho <- rho * max(Re(diag(X))) * (sv2[1:q]/sv2[1]) * d
