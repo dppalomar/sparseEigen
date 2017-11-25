@@ -57,8 +57,10 @@ recovery_standard <- abs(diag(Conj(t(res_standard$vectors[, 1:q])) %*% V[, 1:q])
 print(recovery_standard)
 recovery_sparse <- abs(diag(Conj(t(res_sparse$vectors)) %*% V[, 1:q])) # recovery
 print(recovery_sparse)
-recovery_sparseCov <- abs(diag(Conj(t(res_sparseCov$vectors)) %*% V[, 1:q])) # recovery
-print(recovery_sparseCov)
+if (n > m) {
+  recovery_sparseCov <- abs(diag(Conj(t(res_sparseCov$vectors)) %*% V[, 1:q])) # recovery
+  print(recovery_sparseCov)
+}
 
 if (n <= m) {
   par(mfcol = c(3, 2))

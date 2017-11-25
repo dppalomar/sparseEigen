@@ -6,7 +6,7 @@
 #' @param q number of eigenvectors to be estimated.
 #' @param rho sparsity weight factor. Any nonnegative number (suggested range [0,1]).
 #' @param data boolean variable. If \code{TRUE}, \code{X} is treated as a data matrix, else as a covariance matrix (default).
-#' @param d vector with q weights. The default value is \code{rep(1, q)}.
+#' @param d vector with q weights. The default value is \code{seq(from = 1, to = 0.5, length.out = q)}.
 #' @param V initial m-by-q matrix point. If not provided, the eigenvectors of the sample covariance matrix are used.
 #' @param thres threshold value. All the entries of the sparse eigenvectors less or equal to \code{thres} are set to 0. The default value is \code{1e-9}.
 #' @return A list with the following components:
@@ -69,7 +69,7 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
     if (q > sum(svd_x$d > 1e-9)) stop("The number of estimated eigenvectors q should not be larger than rank(X).")
     sv2 <- svd_x$d^2
     Vx <- svd_x$v
-    rho <- rho * max(colSums(abs(X)^2)) * (sv2[1:q]/sv2[1]) * d
+    rho <- rho * max(colSums(abs(X)^2)) * (sv2[1:q]/sv2[1]) * d/d[1]
   }
   else {
     if (!isSymmetric.matrix(X)) stop("The covariance matrix is not symmetric")
@@ -77,7 +77,7 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
     if (q > sum(eig_x$values > 1e-9)) stop("The number of estimated eigenvectors q should not be larger than rank(X).")
     sv2 <- eig_x$values
     Vx <- eig_x$vectors
-    rho <- rho * max(Re(diag(X))) * (sv2[1:q]/sv2[1]) * d
+    rho <- rho * max(Re(diag(X))) * (sv2[1:q]/sv2[1]) * d/d[1]
   }
 
   # Input parameter V: initial point
