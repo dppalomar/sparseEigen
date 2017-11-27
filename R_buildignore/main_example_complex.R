@@ -31,7 +31,7 @@ R <- V %*% diag(lmd) %*% Conj(t(V))
 
 #-------------#
 # Data Matrix #
-X <- MASS::mvrnorm(n, rep(0, m), R) # random data with underlying sparse structure
+X <- cmvnorm::rcmvnorm(n, rep(0, m), R) # random data with underlying sparse structure
 X <- scale(X, center = TRUE, scale = FALSE)
 
 #-------------------------------#
@@ -69,8 +69,8 @@ lines(abs(V[, 3]), col = "red")
 norm(Re(S) - Re(R), type = 'F') #for sample covariance matrix
 norm(Re(res_sparseCov$cov) - Re(R), type = 'F') #for covariance with sparse eigenvectors
 
-norm(abs(Im(S)) - abs(Im(R)), type = 'F') #for sample covariance matrix
-norm(abs(Im(res_sparseCov$cov)) - abs(Im(R)), type = 'F') #for covariance with sparse eigenvectors
+norm(Im(S) - Im(R), type = 'F') #for sample covariance matrix
+norm(Im(res_sparseCov$cov)) - Im(R), type = 'F') #for covariance with sparse eigenvectors
 
-norm(abs(S) - abs(R), type = 'F')
-norm(abs(res_sparseCov$cov) - abs(R), type = 'F')
+norm(abs(S - R), type = 'F')
+norm(abs(res_sparseCov$cov - R), type = 'F')
