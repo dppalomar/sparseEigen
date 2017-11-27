@@ -15,7 +15,9 @@ header-includes: \setlength{\parindent}{12pt}
 csl: ieee.csl
 bibliography: refs.bib
 vignette: |
-  %\VignetteIndexEntry{Computing sparse eigenvectors} %\VignetteEncoding{UTF-8} %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{Computing sparse eigenvectors} 
+  %\VignetteEncoding{UTF-8} 
+  %\VignetteEngine{knitr::rmarkdown}
 ---
 
 ```{r, echo = FALSE}

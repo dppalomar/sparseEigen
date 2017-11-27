@@ -16,7 +16,7 @@ spEigen(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA,
 
 \item{data}{boolean variable. If \code{TRUE}, \code{X} is treated as a data matrix, else as a covariance matrix (default).}
 
-\item{d}{vector with q weights. The default value is \code{rep(1, q)}.}
+\item{d}{vector with q weights. The default value is \code{seq(from = 1, to = 0.5, length.out = q)}.}
 
 \item{V}{initial m-by-q matrix point. If not provided, the eigenvectors of the sample covariance matrix are used.}
 
