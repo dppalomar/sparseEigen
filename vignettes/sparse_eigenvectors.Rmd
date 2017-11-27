@@ -60,7 +60,7 @@ V <- matrix(0, m, q)
 V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 1/sqrt(sp_card)
 V <- cbind(V, matrix(rnorm(m*(m-q)), m, m-q))
 # keep first q eigenvectors the same (already orthogonal) and orthogonalize the rest
-V <- qr.Q(qr(V))  
+V <- qr.Q(qr(V))
 
 # generate eigenvalues
 lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))
@@ -168,18 +168,13 @@ sp_card <- 0.2*m # cardinality of the sparse eigenvectors
 rho <- 0.5
 
 # generate non-overlapping sparse eigenvectors
-V <- matrix(rep(0, m*q), ncol = q)
-V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- exp(1i*runif(sp_card*q, 0, 2*pi))/sqrt(sp_card)
+V <- matrix(0, m, q)
+V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 
+  exp(1i*runif(q*sp_card, 0, 2*pi))/sqrt(sp_card)
 V <- cbind(V, matrix(rnorm(m*(m-q))*exp(1i*runif(m*(m-q),0,2*pi)), m, m-q))
-
 # keep first q eigenvectors the same (already orthogonal) and orthogonalize the rest
-for (i in (q+1):m) {
-  tmp <- V[,i]
-  for (j in 1:(i-1)) {
-    tmp <- tmp - (V[,i] %*% Conj(V[,j])) %*% V[,j]
-  }
-  V[,i] <- tmp/sqrt(sum(abs(tmp)^2))
-}
+V_ <- (diag(m) - V[, 1:q] %*% Conj(t(V[, 1:q]))) %*% V[, -c(1:q)]
+V <- cbind(V[, 1:q], qr.Q(qr(V_)))
 
 # generate eigenvalues
 lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))
@@ -227,8 +222,8 @@ lines(abs(V[, 3]), col = "red")
 Finally, we can compute the error of the estimated covariance matrix (sparse eigenvector computation vs. classical computation):
 ```{r}
 # show error between estimated and true covariance 
-norm(S - R, type = 'F') #for sample covariance matrix
-norm(res_sparse5$cov - R, type = 'F') #for covariance with sparse eigenvectors
+norm(abs(S - R), type = 'F') #for sample covariance matrix
+norm(abs(res_sparse5$cov - R), type = 'F') #for covariance with sparse eigenvectors
 ```
 
 # Explanation of the algorithms
