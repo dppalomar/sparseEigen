@@ -1,10 +1,6 @@
 source("spEigen.R")
 source("spEigenCov.R")
 
-#--------------------#
-# Libraries required #
-library(cmvnorm) # rmvnorm function for data generation
-
 #------------#
 # Parameters #
 m <- 500 # dimension
@@ -35,7 +31,7 @@ R <- V %*% diag(lmd) %*% Conj(t(V))
 
 #-------------#
 # Data Matrix #
-X <- rcmvnorm(n = n, mean = rep(0, m), sigma = R) # random data with underlying sparse structure
+X <- MASS::mvrnorm(n, rep(0, m), R) # random data with underlying sparse structure
 X <- scale(X, center = TRUE, scale = FALSE)
 
 #-------------------------------#

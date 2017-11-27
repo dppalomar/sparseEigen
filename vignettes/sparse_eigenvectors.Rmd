@@ -37,7 +37,19 @@ This vignette illustrates the computation of sparse eigenvectors or sparse PCA w
 
 
 # Comparison with other packages
-hulsdhiuvhsdal
+We compare the proposed function `spEigen()` with the function `spca()` from the `elasticnet` package. 
+
+First, we illustrate how the functions scale with dimension. For this, we generate synthetic data with sparse eigenvectors (see next section for details) of increasing dimension (100 Monte Carlo runs in each dimension). We apply the two functions to extract the first three eigenvectors. Figure 1 illustrates how the running time of the two functions increase as we increase the dimension of the problem. It is clear that `spEigen()` scales very well, while `spca()` becomes impractical for large dimensions.
+
+![Average running time.](figures/running_time.png){width=95%}
+
+Another advantage of `spEigen()` (and `spEigenCov()`) is the parsimony and robustness in parameter selection. To illustrate this, in Figure 2 we compare the angle and pattern recovery ability of `spEigen()` and `spca()`. To this end, we generate 200 samples form a multivariate Gaussian distribution of dimension 500, following the process described in the next section. 
+
+![Eigenvector recovery.](figures/recovery.png){width=90%}
+
+We observe that `spEigen()` requires only one parameter and can recover correctly the eigenvectors for a large range of the parameter's values. On the other hand, `spca()` requires one parameter per eigenvector, the recovery is affected a lot by small changes of these parameters, and in general it underperforms compared to `spEigen()`.
+
+Finally, further advantages of `spEigen()` are that it can handle real and complex data, and it accepts as input both data and covariance matrices. 
 
 
 # Usage of the package
@@ -60,7 +72,7 @@ V <- matrix(0, m, q)
 V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 1/sqrt(sp_card)
 V <- cbind(V, matrix(rnorm(m*(m-q)), m, m-q))
 # keep first q eigenvectors the same (already orthogonal) and orthogonalize the rest
-V <- qr.Q(qr(V))  
+V <- qr.Q(qr(V))
 
 # generate eigenvalues
 lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))
@@ -168,18 +180,13 @@ sp_card <- 0.2*m # cardinality of the sparse eigenvectors
 rho <- 0.5
 
 # generate non-overlapping sparse eigenvectors
-V <- matrix(rep(0, m*q), ncol = q)
-V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- exp(1i*runif(sp_card*q, 0, 2*pi))/sqrt(sp_card)
+V <- matrix(0, m, q)
+V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 
+  exp(1i*runif(q*sp_card, 0, 2*pi))/sqrt(sp_card)
 V <- cbind(V, matrix(rnorm(m*(m-q))*exp(1i*runif(m*(m-q),0,2*pi)), m, m-q))
-
 # keep first q eigenvectors the same (already orthogonal) and orthogonalize the rest
-for (i in (q+1):m) {
-  tmp <- V[,i]
-  for (j in 1:(i-1)) {
-    tmp <- tmp - (V[,i] %*% Conj(V[,j])) %*% V[,j]
-  }
-  V[,i] <- tmp/sqrt(sum(abs(tmp)^2))
-}
+V_ <- (diag(m) - V[, 1:q] %*% Conj(t(V[, 1:q]))) %*% V[, -c(1:q)]
+V <- cbind(V[, 1:q], qr.Q(qr(V_)))
 
 # generate eigenvalues
 lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))
@@ -190,6 +197,7 @@ R <- V %*% diag(lmd) %*% Conj(t(V))
 # generate data matrix from a zero-mean multivariate Gaussian distribution 
 # with the constructed covariance
 X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
+X <- scale(X, center = TRUE, scale = FALSE)
 ```
 
 Then, we compute the sparse complex eigenvectors (`spEigen()`) and the covariance matrix (`spEigenCov()`):
@@ -203,23 +211,23 @@ res_sparse5 <- spEigenCov(S, q, rho)
 The following plot shows the sparsity pattern of the eigenvectors for both functions:
 ```{r, fig.height = 7, fig.width = 7}
 par(mfcol = c(3, 2))
-plot(abs(res_sparse4$vectors[, 1]), main = "First sparse eigenvector", 
+plot(abs(res_sparse4$vectors[, 1]), main = "spEigen: First sparse eigenvector", 
      xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 1]), col = "red")
-plot(abs(res_sparse4$vectors[, 2]), main = "Second sparse eigenvector", 
+plot(abs(res_sparse4$vectors[, 2]), main = "spEigen: Second sparse eigenvector", 
      xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 2]), col = "red")
-plot(abs(res_sparse4$vectors[, 3]), main = "Third sparse eigenvector", 
+plot(abs(res_sparse4$vectors[, 3]), main = "spEigen: Third sparse eigenvector", 
      xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 3]), col = "red")
 
-plot(abs(res_sparse5$vectors[, 1]), main = "First sparse eigenvector", 
+plot(abs(res_sparse5$vectors[, 1]), main = "spEigenCov: First sparse eigenvector", 
      xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 1]), col = "red")
-plot(abs(res_sparse5$vectors[, 2]), main = "Second sparse eigenvector", 
+plot(abs(res_sparse5$vectors[, 2]), main = "spEigenCov: Second sparse eigenvector", 
      xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 2]), col = "red")
-plot(abs(res_sparse5$vectors[, 3]), main = "Third sparse eigenvector", 
+plot(abs(res_sparse5$vectors[, 3]), main = "spEigenCov: Third sparse eigenvector", 
      xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 3]), col = "red")
 ```
