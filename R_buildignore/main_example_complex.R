@@ -37,13 +37,12 @@ X <- scale(X, center = TRUE, scale = FALSE)
 #-------------------------------#
 # Sparse Eigenvector Extraction #
 data <- FALSE
+S <- 1/(n-1) * t(X) %*% Conj(X)
 
 if (data) {
-  S <- 1/(n-1) * Conj(t(X)) %*% X
   res_sparse <- spEigen(X, q, rho, data = TRUE)
   res_sparseCov <- spEigenCov(S, q, rho)
 } else {
-  S <- 1/(n-1) * Conj(t(X)) %*% X
   res_sparse <- spEigen(S, q, rho)
   res_sparseCov <- spEigenCov(S, q, rho)
 }
@@ -70,7 +69,8 @@ norm(Re(S) - Re(R), type = 'F') #for sample covariance matrix
 norm(Re(res_sparseCov$cov) - Re(R), type = 'F') #for covariance with sparse eigenvectors
 
 norm(Im(S) - Im(R), type = 'F') #for sample covariance matrix
-norm(Im(res_sparseCov$cov)) - Im(R), type = 'F') #for covariance with sparse eigenvectors
+norm(Im(res_sparseCov$cov) - Im(R), type = 'F') #for covariance with sparse eigenvectors
 
 norm(abs(S - R), type = 'F')
 norm(abs(res_sparseCov$cov - R), type = 'F')
+
