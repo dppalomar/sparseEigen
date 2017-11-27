@@ -7,7 +7,7 @@
 spEigenCov(S, q = 1, rho = 0.5, thres = 1e-09)
 }
 \arguments{
-\item{S}{m-by-m covariance matrix. It is required that \code{S} is full-rank.}
+\item{S}{m-by-m covariance matrix. It is required that \code{S} is full-rank. Both real and complex matrices are accepted.}
 
 \item{q}{number of sparse eigenvectors.}
 

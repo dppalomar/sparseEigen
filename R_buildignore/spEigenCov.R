@@ -1,34 +1,30 @@
 spEigenCov <- function(S, q = 1, rho = 0.5, thres = 1e-9) {
-
-  m <- ncol(S)
+  max_iter <- 3000 # maximum MM iterations
 
   ######## error control  #########
+  S <- as.matrix(S)
+  m <- ncol(S)
   if (m == 1) stop("Data is univariate!")
-  if (qr(S)$rank < m) stop("The covariance is low-rank.")
   if (q > m) stop("The number of sparse eigenvectors q should not be larger than m.")
   if (anyNA(S) || anyNA(q) || anyNA(rho)) stop("This function cannot handle NAs.")
+  if (!isSymmetric.matrix(S)) stop("The covariance matrix is not symmetric")
   if ( (q %% 1) != 0 || q <= 0) stop("The input argument q should be a positive integer.")
   if (rho <= 0) stop("The input argument rho should be positive.")
   #################################
 
   # EVD
   S_evd <- eigen(S)
+  if (sum(S_evd$values > 1e-9) < m) stop("The covariance matrix is low-rank and/or not positive definite.")
   V <- S_evd$vectors
   Xi <- S_evd$values
   Xi_max <- Xi[1]
   S_hat <- S - (Xi_max + 1e-6) * diag(rep(1, m))
 
-  # rho
-  rho <- rho * 10 * max(sqrt(sum(S ^ 2))) %*% Xi[1:q] / Xi[1]
-
-  # MM Parameters
-  k <- 0 # MM iteration counter
-  max_iter <- 3000 # maximum MM iterations
+  # Sparsity parameter rho
+  rho <- rho * 10 * max(sqrt(sum(abs(S)^2))) %*% Xi[1:q]/Xi[1]
 
   # Preallocation
   F_v <- matrix(0, max_iter, 1) # objective value
-  H1 <- matrix(0, m, m)
-  H2 <- matrix(0, m, m)
   g <- matrix(0, m, q)
 
   # Decreasing epsilon, p
@@ -42,13 +38,14 @@ spEigenCov <- function(S, q = 1, rho = 0.5, thres = 1e-9) {
   tol <- pp * 1e-1 # tolerance for convergence
   Eps <- pp * 1e-1 # epsilon
 
-
+  ######################### MM LOOP #########################
+  k <- 0  # MM iteration counter
   for (ee in 1:(K + 1)) {
     p <- pp[ee]
     epsi <- Eps[ee]
-    c1 <- log(1 + 1 / p)
+    c1 <- log(1 + 1/p)
     c2 <- 2 * (p + epsi) * c1
-    w0 <- (1 / (epsi * c2)) * rep(1, m * q)
+    w0 <- (1/(epsi * c2)) * rep(1, m*q)
     flg <- 1
 
     while (1) {
@@ -57,42 +54,23 @@ spEigenCov <- function(S, q = 1, rho = 0.5, thres = 1e-9) {
       # Compute quantity A since it is used often
       A <- V %*% diag(1/Xi)
 
-      ##### EIGENVECTOR UPDATE #####
-      # weights
-      w <- w0
-      ind <- abs(c(V[,1:q])) > epsi
-      Vtmp <- V[,1:q]
-      w[ind] <- (0.5 / c1) / (Vtmp[ind] ^ 2 + p * abs(Vtmp[ind]))
-      w <- c(w, rep(0, m*(m-q)))
+      # eigenvector update
+      V <- eigvecUpdate(V, A, S_hat, rho, w0, c1, p, epsi, m, q)
 
-      for (i in 1:q) {
-        w_tmp <- w[( (i - 1) * m + 1):(i * m)]
-        H1[, i] <- (w_tmp - max(w_tmp) * rep(1, m)) * V[, i] * rho[i]
-      }
-
-      H2 <- S_hat %*% A
-
-      # Procrustes update
-      s <- fast.svd(-(H1 + H2))
-      V <- s$u %*% t(s$v)
-
-      ##### EIGENVALUE UPDATE #####
-      G <- -t(A) %*% S_hat %*% A  # this can be faster since we need only diag()
-      Xi <- eigvalAlgo(diag(G), Xi_max, q)
+      # eigenvalue update
+      G <- -h(A) %*% S_hat %*% A  # this can be faster since we need only diag()
+      Xi <- eigvalAlgo(Re(diag(G)), Xi_max, q)
 
       # Objective
-      Vtmp <- V[,1:q]
-      g[abs(Vtmp) <= epsi] <- Vtmp[abs(Vtmp) <= epsi] ^ 2 / (epsi * c2)
-      g[abs(Vtmp) > epsi] <- (log( (p + abs(Vtmp[abs(Vtmp) > epsi]) ) / (p + epsi) )
-                            / c1 + epsi / c2)
+      Vtmp <- abs(V[,1:q])
+      g[abs(Vtmp) <= epsi] <- Vtmp[Vtmp <= epsi]^2 / (epsi*c2)
+      g[abs(Vtmp) > epsi] <- log((p + Vtmp[Vtmp > epsi])/(p + epsi))/c1 + epsi/c2
 
-      F_v[k] <- (sum(log(Xi)) +  sum(diag(t(V) %*% S %*% V) * (1/Xi))
-                 + rho %*% colSums(g))
+      F_v[k] <- sum(log(Xi)) +  sum(diag(h(V) %*% S %*% V) * (1/Xi)) + rho %*% colSums(g)
 
       # Stopping criterion
       if (flg == 0) {
-        rel_change <- (abs(F_v[k] - F_v[k - 1])
-                       / max(1, abs(F_v[k - 1]) ) ) # relative change in objective
+        rel_change <- abs(F_v[k] - F_v[k - 1]) / max(1, abs(F_v[k - 1])) # relative change in objective
         if ( (rel_change <= tol[ee]) | (k >= max_iter) ) {
           break
         }
@@ -102,12 +80,35 @@ spEigenCov <- function(S, q = 1, rho = 0.5, thres = 1e-9) {
   }
 
   V[abs(V) < thres] <- 0 # threshold
-  nrm <- 1 / sqrt(colSums(V ^ 2))
+  nrm <- 1 / sqrt(colSums(abs(V)^2))
   V <- matrix(rep(nrm, m), ncol = m) * V
 
-  return(list(vectors = V, values = Xi, cov = V %*% diag(Xi) %*% t(V)))
+  return(list(vectors = V, values = Xi, cov = V %*% diag(Xi) %*% h(V)))
 }
 
+
+# Hermitian
+h <- function(x) {
+  return(Conj(t(x)))
+}
+
+
+# Eigenvector update
+eigvecUpdate <- function(V, A, S_hat, rho, w0, c1, p, epsi, m, q) {
+  w <- w0
+  absV <- abs(V[,1:q])
+  ind <- c(absV) > epsi
+  w[ind] <- (0.5/c1) / (absV[ind]^2 + p*absV[ind])
+  w <- c(w, rep(0, m*(m-q)))
+
+  H1 <- (matrix(w, ncol = m) - rep(apply(matrix(w, ncol = m), 2, max), each = m)) * V * rep(c(rho,rep(0, m-q)), each = m)
+  H2 <- S_hat %*% A
+
+  # Procrustes update
+  s <- svd(-(H1 + H2))
+
+  return (Uk = s$u %*% h(s$v))
+}
 
 
 # Eigenvalue update algorithm

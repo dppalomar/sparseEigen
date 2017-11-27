@@ -1,4 +1,5 @@
 source("spEigen.R")
+source("spEigenCov.R")
 
 #--------------------#
 # Libraries required #
@@ -7,23 +8,17 @@ library(mvtnorm) # rmvnorm function for data generation
 #------------#
 # Parameters #
 m <- 500 # dimension
-n <- 200 # number of samples
+n <- 600 # number of samples
 q <- 3 # number of sparse eigenvectors to be estimated
-sp_card <- 0.1*m # cardinality of the sparse eigenvectors
+sp_card <- 0.2*m # cardinality of the sparse eigenvectors
 rho <- 0.5
 
-#-----------------#
-# True Covariance #
-# Sparse eigenvectors
-V <- matrix(rnorm(m^2)*exp(1i*runif(m^2,0,2*pi)), ncol = m)
-tmp <- matrix(0, m, q)
+# generate non-overlapping sparse eigenvectors
+V <- matrix(rep(0, m*q), ncol = q)
+V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 1/sqrt(sp_card) * exp(1i*runif(sp_card*q, 0, 2*pi))
+V <- cbind(V, matrix(rnorm(m*(m-q))*exp(1i*runif(m*(m-q),0,2*pi)), m, m-q))
 
-for (i in 1:max(q, 2)) {
-  ind1 <- (i-1)*sp_card + 1
-  ind2 <- i*sp_card
-  tmp[ind1:ind2, i] = 1/sqrt(sp_card)
-  V[, i] <- tmp[, i]*exp(1i*runif(m,0,2*pi))
-}
+# keep first q eigenvectors the same (already orthogonal) and orthogonalize the rest
 for (i in (q+1):m) {
   tmp <- V[,i]
   for (j in 1:(i-1)) {
@@ -32,14 +27,11 @@ for (i in (q+1):m) {
   V[,i] <- tmp/sqrt(sum(abs(tmp)^2))
 }
 
-# Eigenvalues
-vl <- rep(1, m)
-for (i in 1:q) {
-  vl[i] <- 100*(q + 1 - i)
-}
+# generate eigenvalues
+lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))
 
-# Covariance matrix
-R <- V %*% diag(vl) %*% Conj(t(V))
+# generate covariance matrix from sparse eigenvectors and eigenvalues
+R <- V %*% diag(lmd) %*% Conj(t(V))
 
 #-------------#
 # Data Matrix #
@@ -51,19 +43,29 @@ data <- FALSE
 
 if (data) {
   res_sparse <- spEigen(X, q, rho, data = TRUE)
+  S <- 1/(n-1) * Conj(t(X)) %*% X
+  res_sparseCov <- spEigenCov(S, q, rho)
 } else {
   X <- scale(X, center = TRUE, scale = FALSE)
   S <- 1/(n-1) * Conj(t(X)) %*% X
-  res_sparse <- spEigen(S, q, rho, data = TRUE)
+  res_sparse <- spEigen(S, q, rho)
+  res_sparseCov <- spEigenCov(S, q, rho)
 }
 
 #-------#
 # Plots #
-par(mfcol = c(3, 1))
+par(mfcol = c(3, 2))
 plot(abs(res_sparse$vectors[, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(abs(V[, 1]), col = "red")
 plot(abs(res_sparse$vectors[, 2]), main = "Second Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(abs(V[, 2]), col = "red")
 plot(abs(res_sparse$vectors[, 3]), main = "Third Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+lines(abs(V[, 3]), col = "red")
+
+plot(abs(res_sparseCov$vectors[, 1]), main = "First Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+lines(abs(V[, 1]), col = "red")
+plot(abs(res_sparseCov$vectors[, 2]), main = "Second Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
+lines(abs(V[, 2]), col = "red")
+plot(abs(res_sparseCov$vectors[, 3]), main = "Third Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(abs(V[, 3]), col = "red")
 
