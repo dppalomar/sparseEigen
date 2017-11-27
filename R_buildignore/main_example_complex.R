@@ -3,7 +3,7 @@ source("spEigenCov.R")
 
 #--------------------#
 # Libraries required #
-library(mvtnorm) # rmvnorm function for data generation
+library(cmvnorm) # rmvnorm function for data generation
 
 #------------#
 # Parameters #
@@ -35,18 +35,18 @@ R <- V %*% diag(lmd) %*% Conj(t(V))
 
 #-------------#
 # Data Matrix #
-X <- rmvnorm(n = n, mean = rep(0, m), sigma = R) # random data with underlying sparse structure
+X <- rcmvnorm(n = n, mean = rep(0, m), sigma = R) # random data with underlying sparse structure
+X <- scale(X, center = TRUE, scale = FALSE)
 
 #-------------------------------#
 # Sparse Eigenvector Extraction #
 data <- FALSE
 
 if (data) {
-  res_sparse <- spEigen(X, q, rho, data = TRUE)
   S <- 1/(n-1) * Conj(t(X)) %*% X
+  res_sparse <- spEigen(X, q, rho, data = TRUE)
   res_sparseCov <- spEigenCov(S, q, rho)
 } else {
-  X <- scale(X, center = TRUE, scale = FALSE)
   S <- 1/(n-1) * Conj(t(X)) %*% X
   res_sparse <- spEigen(S, q, rho)
   res_sparseCov <- spEigenCov(S, q, rho)
@@ -69,3 +69,12 @@ lines(abs(V[, 2]), col = "red")
 plot(abs(res_sparseCov$vectors[, 3]), main = "Third Sparse Eigenvector", xlab = "Index", ylab = "", type = "h")
 lines(abs(V[, 3]), col = "red")
 
+# show error between estimated and true covariance
+norm(Re(S) - Re(R), type = 'F') #for sample covariance matrix
+norm(Re(res_sparseCov$cov) - Re(R), type = 'F') #for covariance with sparse eigenvectors
+
+norm(abs(Im(S)) - abs(Im(R)), type = 'F') #for sample covariance matrix
+norm(abs(Im(res_sparseCov$cov)) - abs(Im(R)), type = 'F') #for covariance with sparse eigenvectors
+
+norm(abs(S) - abs(R), type = 'F')
+norm(abs(res_sparseCov$cov) - abs(R), type = 'F')

@@ -203,32 +203,32 @@ res_sparse5 <- spEigenCov(S, q, rho)
 The following plot shows the sparsity pattern of the eigenvectors for both functions:
 ```{r, fig.height = 7, fig.width = 7}
 par(mfcol = c(3, 2))
-plot(abs(res_sparse4$vectors[, 1]), main = "First Sparse Eigenvector", 
-     xlab = "Index", ylab = "", type = "h")
+plot(abs(res_sparse4$vectors[, 1]), main = "First sparse eigenvector", 
+     xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 1]), col = "red")
-plot(abs(res_sparse4$vectors[, 2]), main = "Second Sparse Eigenvector", 
-     xlab = "Index", ylab = "", type = "h")
+plot(abs(res_sparse4$vectors[, 2]), main = "Second sparse eigenvector", 
+     xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 2]), col = "red")
-plot(abs(res_sparse4$vectors[, 3]), main = "Third Sparse Eigenvector", 
-     xlab = "Index", ylab = "", type = "h")
+plot(abs(res_sparse4$vectors[, 3]), main = "Third sparse eigenvector", 
+     xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 3]), col = "red")
 
-plot(abs(res_sparse5$vectors[, 1]), main = "First Sparse Eigenvector", 
-     xlab = "Index", ylab = "", type = "h")
+plot(abs(res_sparse5$vectors[, 1]), main = "First sparse eigenvector", 
+     xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 1]), col = "red")
-plot(abs(res_sparse5$vectors[, 2]), main = "Second Sparse Eigenvector", 
-     xlab = "Index", ylab = "", type = "h")
+plot(abs(res_sparse5$vectors[, 2]), main = "Second sparse eigenvector", 
+     xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 2]), col = "red")
-plot(abs(res_sparse5$vectors[, 3]), main = "Third Sparse Eigenvector", 
-     xlab = "Index", ylab = "", type = "h")
+plot(abs(res_sparse5$vectors[, 3]), main = "Third sparse eigenvector", 
+     xlab = "index", ylab = "", type = "h")
 lines(abs(V[, 3]), col = "red")
 ```
 
 Finally, we can compute the error of the estimated covariance matrix (sparse eigenvector computation vs. classical computation):
 ```{r}
 # show error between estimated and true covariance 
-norm(S - R, type = 'F') #for sample covariance matrix
-norm(res_sparse5$cov - R, type = 'F') #for covariance with sparse eigenvectors
+norm(abs(S) - abs(R), type = 'F') #for sample covariance matrix
+norm(abs(res_sparse5$cov) - abs(R), type = 'F') #for covariance with sparse eigenvectors
 ```
 
 # Explanation of the algorithms
