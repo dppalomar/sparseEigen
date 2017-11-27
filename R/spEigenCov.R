@@ -59,6 +59,7 @@ spEigenCov <- function(S, q = 1, rho = 0.5, thres = 1e-9) {
 
   # EVD
   S_evd <- eigen(S)
+  if (any(S_evd$values <= 0)) stop("The covariance matrix is not PSD.")
   if (sum(S_evd$values > 1e-9) < m) stop("The covariance matrix is low-rank.")
   V <- S_evd$vectors
   Xi <- S_evd$values
