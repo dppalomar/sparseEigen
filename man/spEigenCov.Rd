@@ -7,7 +7,7 @@
 spEigenCov(S, q = 1, rho = 0.5, thres = 1e-09)
 }
 \arguments{
-\item{S}{m-by-m covariance matrix. It is required that \code{S} is full-rank. Both real and complex matrices are accepted.}
+\item{S}{m-by-m sample covariance matrix. It is required that \code{S} is full-rank. Both real and complex matrices are accepted.}
 
 \item{q}{number of sparse eigenvectors.}
 
@@ -21,7 +21,7 @@ A list with the following components:
 \item{\code{values}  }{m-by-1 vector corresponding to eigenvalues.}
 }
 \description{
-Computes joitly the sparse (orthogonal) eigenvectors and the eigenvalues of numeric covariance matrices.
+Estimates the covariance matrix with sparse (orthogonal) eigenvectors (in other words, it jointly estimates the sparse eigenvectors and the eigenvalues).
 }
 \examples{
 library(sparseEigen)
@@ -38,10 +38,10 @@ V <- qr.Q(qr(V))  # orthogonalize eigenvectors
 lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))  # generate eigenvalues
 R <- V \%*\% diag(lmd) \%*\% t(V)  # covariance matrix
 
-# generate dats
+# generate data
 X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
 
-# standard and spase estimation
+# standard and sparse estimation
 res_standard <- eigen(cov(X))
 res_sparse <- spEigenCov(cov(X), q, rho)
 

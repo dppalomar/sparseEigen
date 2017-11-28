@@ -26,7 +26,7 @@ spEigen(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA,
 A list with the following components:
 \item{\code{vectors}}{m-by-q matrix, columns corresponding to the q leading sparse eigenvectors.}
 \item{\code{standard_vectors}}{m-by-q matrix, columns corresponding to standard (non-sparse) leading eigenvectors.}
-\item{\code{values}}{vector with the q leading eigenvalues in decreasing order.}
+\item{\code{values}}{vector with the q leading eigenvalues (in decreasing order).}
 }
 \description{
 Computes sparse (orthogonal) eigenvectors of covariance matrix or directly of data matrix.
