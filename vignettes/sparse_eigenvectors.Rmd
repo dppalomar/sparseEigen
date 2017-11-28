@@ -41,13 +41,13 @@ We compare the proposed function `spEigen()` with the function `spca()` from the
 
 First, we illustrate how the functions scale with dimension. For this, we generate synthetic data with sparse eigenvectors (see next section for details) of increasing dimension (100 Monte Carlo runs in each dimension). We apply the two functions to extract the first three eigenvectors. Figure 1 illustrates how the running time of the two functions increase as we increase the dimension of the problem. It is clear that `spEigen()` scales very well, while `spca()` becomes impractical for large dimensions.
 
-![Average running time.](figures/running_time.png){width=95%}
+![**Figure 1:** Average running time.](figures/running_time.png){width=95%}
 
 Another advantage of `spEigen()` (and `spEigenCov()`) is the parsimony and robustness in parameter selection. To illustrate this, in Figure 2 we compare the angle and pattern recovery ability of `spEigen()` and `spca()`. To this end, we generate 200 samples form a multivariate Gaussian distribution of dimension 500, following the process described in the next section. 
 
-![Eigenvector recovery.](figures/recovery.png){width=90%}
+![**Figure 2:** Eigenvector recovery.](figures/recovery.png){width=100%}
 
-We observe that `spEigen()` requires only one parameter and can recover correctly the eigenvectors for a large range of the parameter's values. On the other hand, `spca()` requires one parameter per eigenvector, the recovery is affected a lot by small changes of these parameters, and in general it underperforms compared to `spEigen()`.
+We observe that `spEigen()` requires only one parameter and can recover correctly the eigenvectors for a large range of the parameter's values. On the other hand, `spca()` requires one parameter per eigenvector, the recovery is significantly affected by small changes of these parameters, and in general it underperforms compared to `spEigen()`.
 
 Finally, further advantages of `spEigen()` are that it can handle real and complex data, and it accepts as input both data and covariance matrices. 
 

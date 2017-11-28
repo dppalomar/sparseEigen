@@ -64,7 +64,7 @@ We can assess how good the estimated eigenvectors are by computing the inner pro
 abs(diag(t(res_standard$vectors) %*% V[, 1:q]))  #for standard estimated eigenvectors
 #> [1] 0.9215392 0.9194898 0.9740871
 abs(diag(t(res_sparse$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvectors
-#> [1] 0.9987288 0.9990260 0.9972010
+#> [1] 0.9986937 0.9988146 0.9972078
 ```
 
 Finally, the following plot shows the sparsity pattern of the eigenvectors (sparse computation vs. classical computation): ![](man/figures/README-unnamed-chunk-6-1.png)
@@ -86,7 +86,7 @@ Again, we can assess how good the estimated eigenvectors are by computing the in
 ``` r
 # show inner product between estimated eigenvectors and originals
 abs(diag(t(res_sparse2$vectors[, 1:q]) %*% V[, 1:q]))    #for sparse estimated eigenvectors
-#> [1] 0.9997788 0.9996302 0.9994141
+#> [1] 0.9997197 0.9996029 0.9992848
 ```
 
 Finally, we can compute the error of the estimated covariance matrix (sparse eigenvector computation vs. classical computation):
@@ -96,5 +96,5 @@ Finally, we can compute the error of the estimated covariance matrix (sparse eig
 norm(cov(X) - R, type = 'F') #for sample covariance matrix
 #> [1] 48.42514
 norm(res_sparse2$cov - R, type = 'F') #for covariance with sparse eigenvectors
-#> [1] 25.15724
+#> [1] 25.74865
 ```

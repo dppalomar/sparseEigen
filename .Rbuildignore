@@ -2,6 +2,5 @@
 ^\.Rproj\.user$
 ^README\.Rmd$
 ^README-.*\.png$
-^data-raw$
 ^R_buildignore$
-^refs$
+^papers$

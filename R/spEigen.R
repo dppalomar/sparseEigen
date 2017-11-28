@@ -12,7 +12,7 @@
 #' @return A list with the following components:
 #' \item{\code{vectors}}{m-by-q matrix, columns corresponding to the q leading sparse eigenvectors.}
 #' \item{\code{standard_vectors}}{m-by-q matrix, columns corresponding to standard (non-sparse) leading eigenvectors.}
-#' \item{\code{values}}{vector with the q leading eigenvalues in decreasing order.}
+#' \item{\code{values}}{vector with the q leading eigenvalues (in decreasing order).}
 #' @author Konstantinos Benidis and Daniel P. Palomar
 #' @references
 #' K. Benidis, Y. Sun, P. Babu, D.P. Palomar "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
@@ -74,7 +74,8 @@ spEigen <- function(X, q = 1, rho = 0.5, data = FALSE, d = NA, V = NA, thres = 1
   else {
     if (!isSymmetric.matrix(X)) stop("The covariance matrix is not symmetric.")
     eig_x <- eigen(X)
-    if (any(eig_x$values <= 0)) stop("The covariance matrix is not PSD.")
+    if (any(eig_x$values < -1e-10)) stop("The covariance matrix is not PD.")
+    eig_x$values[eig_x$values<0] <- 0  # fix numerical rounding errors
     if (q > sum(eig_x$values > 1e-9)) stop("The number of estimated eigenvectors q should not be larger than rank(X).")
     sv2 <- eig_x$values
     Vx <- eig_x$vectors

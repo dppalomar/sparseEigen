@@ -1,8 +1,8 @@
 #' Covariance Matrix Estimation with Sparse Eigenvectors
 #'
-#' Computes joitly the sparse (orthogonal) eigenvectors and the eigenvalues of numeric covariance matrices.
+#' Estimates the covariance matrix with sparse (orthogonal) eigenvectors (in other words, it jointly estimates the sparse eigenvectors and the eigenvalues).
 #'
-#' @param S m-by-m covariance matrix. It is required that \code{S} is full-rank. Both real and complex matrices are accepted.
+#' @param S m-by-m sample covariance matrix. It is required that \code{S} is full-rank. Both real and complex matrices are accepted.
 #' @param q number of sparse eigenvectors.
 #' @param rho sparsity weight factor. Any nonnegative number (suggested range [0,1]).
 #' @param thres threshold value. All the entries of the sparse eigenvectors less or equal to \code{thres} are set to 0. The default value is \code{1e-9}.
@@ -28,10 +28,10 @@
 #' lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))  # generate eigenvalues
 #' R <- V %*% diag(lmd) %*% t(V)  # covariance matrix
 #'
-#' # generate dats
+#' # generate data
 #' X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
 #'
-#' # standard and spase estimation
+#' # standard and sparse estimation
 #' res_standard <- eigen(cov(X))
 #' res_sparse <- spEigenCov(cov(X), q, rho)
 #'
@@ -59,7 +59,8 @@ spEigenCov <- function(S, q = 1, rho = 0.5, thres = 1e-9) {
 
   # EVD
   S_evd <- eigen(S)
-  if (any(S_evd$values <= 0)) stop("The covariance matrix is not PSD.")
+  if (any(S_evd$values <= -1e-10)) stop("The covariance matrix is not PSD.")
+  S_evd$values[S_evd$values<0] <- 0  # fix numerical rounding errors
   if (sum(S_evd$values > 1e-9) < m) stop("The covariance matrix is low-rank.")
   V <- S_evd$vectors
   Xi <- S_evd$values
