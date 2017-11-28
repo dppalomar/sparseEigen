@@ -23,8 +23,10 @@ vignette: |
 ```{r, echo = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.align = "center"
 )
+#rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "all")
 #Vignette pdf example: https://github.com/arorar/covmat/blob/master/inst/doc/CovarianceEstimation.pdf
 #html_document:
 #  prettydoc::html_pretty:

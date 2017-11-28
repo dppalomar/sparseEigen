@@ -60,7 +60,7 @@
     <choose>
       <if type="article-journal report" match="any">
         <date variable="issued">
-          <date-part name="month" form="short" suffix=" "/>
+          <date-part name="month" form="short" text-case="capitalize-first" suffix=" "/>
           <date-part name="year" form="long"/>
         </date>
       </if>
