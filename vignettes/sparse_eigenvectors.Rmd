@@ -12,6 +12,7 @@ output:
     toc: yes
     toc_depth: 2
 header-includes: \setlength{\parindent}{12pt}
+graphics: yes
 csl: ieee.csl
 bibliography: refs.bib
 vignette: |
@@ -43,11 +44,254 @@ We compare the proposed function `spEigen()` with the function `spca()` from the
 
 First, we illustrate how the functions scale with dimension. For this, we generate synthetic data with sparse eigenvectors (see next section for details) of increasing dimension (100 Monte Carlo runs in each dimension). We apply the two functions to extract the first three eigenvectors. Figure 1 illustrates how the running time of the two functions increase as we increase the dimension of the problem. It is clear that `spEigen()` scales very well, while `spca()` becomes impractical for large dimensions.
 
+```{r include=FALSE, eval=FALSE}
+library(sparseEigen)
+library(mvtnorm) 
+library(elasticnet)
+
+# Constant parameters
+q <- 3 # number of sparse eigenvectors to be estimated
+rho <- 0.5 # sparsity 
+mc <- 50 # monte carlo for each dimension
+
+########## Loop for different dimensions ##########
+dims <- 100*seq(1, 8)
+
+# Initialize
+time_spEigen <- matrix(rep(0, mc*length(dims)), nrow = length(dims))
+time_spca <- matrix(rep(0, mc*length(dims)), nrow = length(dims))
+
+for (dd in 1:length(dims)) {
+  print(dims[dd])
+  
+  # Parameters that change in every loop
+  m <- dims[dd] # dimension
+  n <- ceiling(m/5) # number of samples
+  sp_card <- ceiling(0.1*m) # cardinality of the sparse eigenvectors
+
+  ### True Covariance ### 
+  # generate non-overlapping sparse eigenvectors
+  V <- matrix(rep(0, m*q), ncol = q)
+  V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 1/sqrt(sp_card)
+  V <- cbind(V, matrix(rnorm(m*(m-q)), m, m-q))
+  
+  V <- qr.Q(qr(V)) # orthogonalization, but keep the first eigenvectors to be same as V
+
+  # generate eigenvalues
+  lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))
+  
+  # generate covariance matrix from sparse eigenvectors and eigenvalues
+  R <- V %*% diag(lmd) %*% Conj(t(V))
+  
+  # Call the function once to get it into memory
+  res_spEigen <- spEigen(R, q, rho)
+  res_spca <- spca(R, K=q, type="Gram", sparse="penalty", trace=FALSE, para=c(.4,.4,.4))
+  
+  ########## Monte Carlo ##########
+  for (ii in 1:mc) {
+    # Data Matrix 
+    X <- rmvnorm(n = n, mean = rep(0, m), sigma = R) # random data with underlying sparse structure
+
+    # 1. spEigen()
+    ptm <- proc.time()
+    res_spEigen <- spEigen(X, q, rho, data=TRUE)
+    time_spEigen[dd, ii] <- (proc.time() - ptm)[3]    
+  
+    # 2. spca() - without including the time of calculating the covariance
+    Xc <- cov(X) 
+    ptm <- proc.time()
+    res_spca <- spca(Xc, K=q, type="Gram", sparse="penalty", trace=FALSE, para=c(.4,.4,.4))
+    time_spca[dd, ii] <- (proc.time() - ptm)[3]    
+  }
+}
+
+# average
+avg_spEigen <- rowMeans(time_spEigen)
+avg_spca <- rowMeans(time_spca)
+results <- matrix(c(avg_spca, avg_spEigen), ncol=2)
+
+########## Plots ##########
+matplot(dims, results , pch=1, col = 1:2, type = 'b',
+        main = "Average running time", xlab = "Dimension", ylab = "Time", log = 'y', yaxt = 'n') 
+axis(2, at = 10^(c(-1, 0, 1, 2)))
+legend("topleft", legend = c('spca()', 'spEigen()'), col=1:2, pch=1) 
+grid()
+```
+
 ![**Figure 1:** Average running time.](figures/running_time.png){width=95%}
 
 Another advantage of `spEigen()` (and `spEigenCov()`) is the parsimony and robustness in parameter selection. To illustrate this, in Figure 2 we compare the angle and pattern recovery ability of `spEigen()` and `spca()`. To this end, we generate 200 samples form a multivariate Gaussian distribution of dimension 500, following the process described in the next section. 
 
-![**Figure 2:** Eigenvector recovery.](figures/recovery.png){width=100%}
+```{r include=FALSE, eval=FALSE}
+library(sparseEigen)
+library(mvtnorm) 
+library(elasticnet)
+library(scales)
+
+set.seed(42)
+
+# Parameters
+m <- 500 # dimension
+n <- 200 # number of samples
+q <- 3 # number of sparse eigenvectors to be estimated
+sp_card <- 0.1*m # cardinality of the sparse eigenvectors
+rho <- c(0.1, 0.5, 0.9) # sparsity parameters for spEigen()
+rho_spca <- c(0.1, 0.5, 0.9) # sparsity parameters for spca()
+
+# True Covariance
+# generate non-overlapping sparse eigenvectors
+V <- matrix(rep(0, m*q), ncol = q)
+V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 1/sqrt(sp_card)
+V <- cbind(V, matrix(rnorm(m*(m-q)), m, m-q))
+
+V <- qr.Q(qr(V)) # orthogonalization, but keep the first eigenvectors to be same as V
+
+# generate eigenvalues
+lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))
+
+# generate covariance matrix from sparse eigenvectors and eigenvalues
+R <- V %*% diag(lmd) %*% Conj(t(V))
+
+# Data Matrix
+X <- rmvnorm(n = n, mean = rep(0, m), sigma = R) # random data with underlying sparse structure
+
+# Sparse Eigenvector Extraction
+results_spEigen <- array(0, dim=c(3, m, 3))
+results_spca <- array(0, dim=c(3, m, 3))
+
+angleRec_spEigen <- matrix(0, 3, 3)
+angleRec_spca <- matrix(0, 3, 3)
+
+patternRec_spEigen <- matrix(0, 3, 3)
+patternRec_spca <- matrix(0, 3, 3)
+
+for (i in 1:3) {
+  # spEigen()
+  res_spEigen <- spEigen(X, q, rho[i], data = TRUE)
+  results_spEigen[i, ,] <- matrix(c(res_spEigen$vectors[, 1]*sign(res_spEigen$vectors[1, 1]),
+                                 res_spEigen$vectors[, 2]*sign(res_spEigen$vectors[sp_card+1, 2]),
+                                 res_spEigen$vectors[, 3]*sign(res_spEigen$vectors[2*sp_card+1, 3])), ncol=3)
+
+  angleRec_spEigen[i, ] <- abs(diag(Conj(t(results_spEigen[i, ,])) %*% V[, 1:q])) # recovery
+  patternRec_spEigen[i, ] <- 1 - 1/m * colSums((abs(results_spEigen[i, ,]) > 1e-6) -  (abs(V[, 1:q]) > 1e-6))
+
+  # spca()
+  res_spca <- spca(cov(X), K = q, type = "Gram", sparse = "penalty", trace = FALSE, para = rho_spca[i]*rep(1, 3))
+  results_spca[i, ,] <- matrix(c(res_spca$loadings[, 1]*sign(res_spca$loadings[1, 1]),
+                                 res_spca$loadings[, 2]*sign(res_spca$loadings[sp_card+1, 2]),
+                                 res_spca$loadings[, 3]*sign(res_spca$loadings[2*sp_card+1, 3])), ncol=3)
+
+  angleRec_spca[i, ] <- abs(diag(Conj(t(results_spca[i, ,])) %*% V[, 1:q]))
+  patternRec_spca[i, ] <- 1 - 1/m * colSums((abs(results_spca[i, ,]) > 1e-6) -  (abs(V[, 1:q]) > 1e-6))
+}
+
+# Plots
+par(mfcol = c(3, 2))
+matplot(seq(1, m), results_spEigen[1, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
+        main = paste('spEigen: rho =', rho[1]), type = "h",
+        col = alpha(c('orangered', 'blue', 'green'), 0.5))
+text(x = 220, y = 0.22, labels = 'Recovery:')
+text(x = 300, y = 0.22, labels = 'Angle')
+text(x = 300, y = 0.15, labels = round(angleRec_spEigen[1, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spEigen[1, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spEigen[1, 3], 4))
+text(x = 400, y = 0.22, labels = 'Pattern')
+text(x = 400, y = 0.15, labels = round(patternRec_spEigen[1, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spEigen[1, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spEigen[1, 3], 4))
+lines(V[, 1]*sign(V[1, 1]), col = "red")
+lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
+lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
+grid()
+
+matplot(seq(1, m), results_spEigen[2, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
+        main = paste('spEigen: rho =', rho[2]), type = "h",
+        col = alpha(c('orangered', 'blue', 'green'), 0.5))
+text(x = 220, y = 0.22, labels = 'Recovery:')
+text(x = 300, y = 0.22, labels = 'Angle')
+text(x = 300, y = 0.15, labels = round(angleRec_spEigen[2, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spEigen[2, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spEigen[2, 3], 4))
+text(x = 400, y = 0.22, labels = 'Pattern')
+text(x = 400, y = 0.15, labels = round(patternRec_spEigen[2, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spEigen[2, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spEigen[2, 3], 4))
+lines(V[, 1]*sign(V[1, 1]), col = "red")
+lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
+lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
+grid()
+
+matplot(seq(1, m), results_spEigen[3, ,] , xlab = "Index", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
+        main = paste('spEigen: rho =', rho[3]), type = "h",
+        col = alpha(c('orangered', 'blue', 'green'), 0.5))
+text(x = 220, y = 0.22, labels = 'Recovery:')
+text(x = 300, y = 0.22, labels = 'Angle')
+text(x = 300, y = 0.15, labels = round(angleRec_spEigen[3, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spEigen[3, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spEigen[3, 3], 4))
+text(x = 400, y = 0.22, labels = 'Pattern')
+text(x = 400, y = 0.15, labels = round(patternRec_spEigen[3, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spEigen[3, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spEigen[3, 3], 4))
+lines(V[, 1]*sign(V[1, 1]), col = "red")
+lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
+lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
+grid()
+
+matplot(seq(1, m), results_spca[1, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
+        main = paste0('spca: para = [', rho_spca[1],', ', rho_spca[1],', ', rho_spca[1],']'), type = "h",
+        col = alpha(c('orangered', 'blue', 'green'), 0.5))
+text(x = 220, y = 0.22, labels = 'Recovery:')
+text(x = 300, y = 0.22, labels = 'Angle')
+text(x = 300, y = 0.15, labels = round(angleRec_spca[1, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spca[1, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spca[1, 3], 4))
+text(x = 400, y = 0.22, labels = 'Pattern')
+text(x = 400, y = 0.15, labels = round(patternRec_spca[1, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spca[1, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spca[1, 3], 4))
+lines(V[, 1]*sign(V[1, 1]), col = "red")
+lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
+lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
+grid()
+
+matplot(seq(1, m), results_spca[2, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
+        main = paste0('spca: para = [', rho_spca[2],', ', rho_spca[2],', ', rho_spca[2],']'), type = "h",
+        col = alpha(c('orangered', 'blue', 'green'), 0.5))
+text(x = 220, y = 0.22, labels = 'Recovery:')
+text(x = 300, y = 0.22, labels = 'Angle')
+text(x = 300, y = 0.15, labels = round(angleRec_spca[2, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spca[2, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spca[2, 3], 4))
+text(x = 400, y = 0.22, labels = 'Pattern')
+text(x = 400, y = 0.15, labels = round(patternRec_spca[2, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spca[2, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spca[2, 3], 4))
+lines(V[, 1]*sign(V[1, 1]), col = "red")
+lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
+lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
+grid()
+
+matplot(seq(1, m), results_spca[3, ,] , xlab = "Index", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
+        main = paste0('spca: para = [', rho_spca[3],', ', rho_spca[3],', ', rho_spca[3],']'), type = "h",
+        col = alpha(c('orangered', 'blue', 'green'), 0.5))
+text(x = 220, y = 0.22, labels = 'Recovery:')
+text(x = 300, y = 0.22, labels = 'Angle')
+text(x = 300, y = 0.15, labels = round(angleRec_spca[3, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spca[3, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spca[3, 3], 4))
+text(x = 400, y = 0.22, labels = 'Pattern')
+text(x = 400, y = 0.15, labels = round(patternRec_spca[3, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spca[3, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spca[3, 3], 4))
+lines(V[, 1]*sign(V[1, 1]), col = "red")
+lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
+lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
+grid()
+```
+
+
+![**Figure 2:** Eigenvector recovery.](figures/recovery.jpeg){width=100%}
 
 We observe that `spEigen()` requires only one parameter and can recover correctly the eigenvectors for a large range of the parameter's values. On the other hand, `spca()` requires one parameter per eigenvector, the recovery is significantly affected by small changes of these parameters, and in general it underperforms compared to `spEigen()`.
 

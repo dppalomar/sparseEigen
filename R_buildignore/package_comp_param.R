@@ -8,14 +8,13 @@ library(scales)
 
 set.seed(42)
 
-#------------#
-# Parameters #
+# Parameters
 m <- 500 # dimension
 n <- 200 # number of samples
 q <- 3 # number of sparse eigenvectors to be estimated
 sp_card <- 0.1*m # cardinality of the sparse eigenvectors
-rho <- c(0.1, 0.5, 0.9)
-rho_spca <- c(0.1, 0.5, 0.9)
+rho <- c(0.1, 0.5, 0.9) # sparsity parameters for spEigen()
+rho_spca <- c(0.1, 0.5, 0.9) # sparsity parameters for spca()
 
 #-----------------#
 # True Covariance #
@@ -32,64 +31,56 @@ lmd <- c(100*seq(from = q, to = 1), rep(1, m-q))
 # generate covariance matrix from sparse eigenvectors and eigenvalues
 R <- V %*% diag(lmd) %*% Conj(t(V))
 
-#-------------#
-# Data Matrix #
+# Data Matrix
 X <- rmvnorm(n = n, mean = rep(0, m), sigma = R) # random data with underlying sparse structure
 
-#-------------------------------#
-# Sparse Eigenvector Extraction #
+# Sparse Eigenvector Extraction
 results_spEigen <- array(0, dim=c(3, m, 3))
 results_spca <- array(0, dim=c(3, m, 3))
 
+angleRec_spEigen <- matrix(0, 3, 3)
+angleRec_spca <- matrix(0, 3, 3)
+
+patternRec_spEigen <- matrix(0, 3, 3)
+patternRec_spca <- matrix(0, 3, 3)
+
 for (i in 1:3) {
+  # spEigen()
   res_spEigen <- spEigen(X, q, rho[i], data=TRUE)
   results_spEigen[i, ,] <- matrix(c(res_spEigen$vectors[, 1]*sign(res_spEigen$vectors[1, 1]),
                                  res_spEigen$vectors[, 2]*sign(res_spEigen$vectors[sp_card+1, 2]),
                                  res_spEigen$vectors[, 3]*sign(res_spEigen$vectors[2*sp_card+1, 3])), ncol=3)
 
+  angleRec_spEigen[i, ] <- abs(diag(Conj(t(results_spEigen[i, ,])) %*% V[, 1:q])) # recovery
+  patternRec_spEigen[i, ] <- 1 - 1/m * colSums((abs(results_spEigen[i, ,]) > 1e-6) -  (abs(V[, 1:q]) > 1e-6))
+
+  # spca()
   res_spca <- spca(cov(X), K=q, type="Gram", sparse="penalty", trace=FALSE, para=rho_spca[i]*rep(1, 3))
   results_spca[i, ,] <- matrix(c(res_spca$loadings[, 1]*sign(res_spca$loadings[1, 1]),
                                  res_spca$loadings[, 2]*sign(res_spca$loadings[sp_card+1, 2]),
                                  res_spca$loadings[, 3]*sign(res_spca$loadings[2*sp_card+1, 3])), ncol=3)
+
+  angleRec_spca[i, ] <- abs(diag(Conj(t(results_spca[i, ,])) %*% V[, 1:q]))
+  patternRec_spca[i, ] <- 1 - 1/m * colSums((abs(results_spca[i, ,]) > 1e-6) -  (abs(V[, 1:q]) > 1e-6))
 }
 
 
-#----------#
-# Recovery #
-recovery_spEigen <- matrix(0, 3, 3)
-recovery_spca <- matrix(0, 3, 3)
+# Plots
+cairo_ps(filename = "recovery.ps")
 
-for (i in 1:3) {
-  recovery_spEigen[i, ] <- abs(diag(Conj(t(results_spEigen[i, ,])) %*% V[, 1:q])) # recovery
-  recovery_spca[i, ] <- abs(diag(Conj(t(results_spca[i, ,])) %*% V[, 1:q]))
-}
-
-
-#---------#
-# Pattern #
-pattern_spEigen <- matrix(0, 3, 3)
-pattern_spca <- matrix(0, 3, 3)
-
-for (i in 1:3) {
-  pattern_spEigen[i, ] <- 1 - 1/m * colSums((abs(results_spEigen[i, ,]) > 1e-6) -  (abs(V[, 1:q]) > 1e-6)) # pattern recovery
-  pattern_spca[i, ] <- 1 - 1/m * colSums((abs(results_spca[i, ,]) > 1e-6) -  (abs(V[, 1:q]) > 1e-6))
-}
-
-#-------#
-# Plots #
 par(mfcol = c(3, 2))
 matplot(seq(1, m), results_spEigen[1, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
         main = paste('spEigen: rho =', rho[1]), type = "h",
         col = alpha(c('orangered', 'blue', 'green'), 0.5))
 text(x = 220, y = 0.22, labels = 'Recovery:')
 text(x = 300, y = 0.22, labels = 'Angle')
-text(x = 300, y = 0.15, labels = round(recovery_spEigen[1, 1], 4))
-text(x = 300, y = 0.10, labels = round(recovery_spEigen[1, 2], 4))
-text(x = 300, y = 0.05, labels = round(recovery_spEigen[1, 3], 4))
+text(x = 300, y = 0.15, labels = round(angleRec_spEigen[1, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spEigen[1, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spEigen[1, 3], 4))
 text(x = 400, y = 0.22, labels = 'Pattern')
-text(x = 400, y = 0.15, labels = round(pattern_spEigen[1, 1], 4))
-text(x = 400, y = 0.10, labels = round(pattern_spEigen[1, 2], 4))
-text(x = 400, y = 0.05, labels = round(pattern_spEigen[1, 3], 4))
+text(x = 400, y = 0.15, labels = round(patternRec_spEigen[1, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spEigen[1, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spEigen[1, 3], 4))
 lines(V[, 1]*sign(V[1, 1]), col = "red")
 lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
@@ -100,13 +91,13 @@ matplot(seq(1, m), results_spEigen[2, ,] , xlab = "", ylab = "", ylim = c(-0.1, 
         col = alpha(c('orangered', 'blue', 'green'), 0.5))
 text(x = 220, y = 0.22, labels = 'Recovery:')
 text(x = 300, y = 0.22, labels = 'Angle')
-text(x = 300, y = 0.15, labels = round(recovery_spEigen[2, 1], 4))
-text(x = 300, y = 0.10, labels = round(recovery_spEigen[2, 2], 4))
-text(x = 300, y = 0.05, labels = round(recovery_spEigen[2, 3], 4))
+text(x = 300, y = 0.15, labels = round(angleRec_spEigen[2, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spEigen[2, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spEigen[2, 3], 4))
 text(x = 400, y = 0.22, labels = 'Pattern')
-text(x = 400, y = 0.15, labels = round(pattern_spEigen[2, 1], 4))
-text(x = 400, y = 0.10, labels = round(pattern_spEigen[2, 2], 4))
-text(x = 400, y = 0.05, labels = round(pattern_spEigen[2, 3], 4))
+text(x = 400, y = 0.15, labels = round(patternRec_spEigen[2, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spEigen[2, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spEigen[2, 3], 4))
 lines(V[, 1]*sign(V[1, 1]), col = "red")
 lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
@@ -117,13 +108,13 @@ matplot(seq(1, m), results_spEigen[3, ,] , xlab = "Index", ylab = "", ylim = c(-
         col = alpha(c('orangered', 'blue', 'green'), 0.5))
 text(x = 220, y = 0.22, labels = 'Recovery:')
 text(x = 300, y = 0.22, labels = 'Angle')
-text(x = 300, y = 0.15, labels = round(recovery_spEigen[3, 1], 4))
-text(x = 300, y = 0.10, labels = round(recovery_spEigen[3, 2], 4))
-text(x = 300, y = 0.05, labels = round(recovery_spEigen[3, 3], 4))
+text(x = 300, y = 0.15, labels = round(angleRec_spEigen[3, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spEigen[3, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spEigen[3, 3], 4))
 text(x = 400, y = 0.22, labels = 'Pattern')
-text(x = 400, y = 0.15, labels = round(pattern_spEigen[3, 1], 4))
-text(x = 400, y = 0.10, labels = round(pattern_spEigen[3, 2], 4))
-text(x = 400, y = 0.05, labels = round(pattern_spEigen[3, 3], 4))
+text(x = 400, y = 0.15, labels = round(patternRec_spEigen[3, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spEigen[3, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spEigen[3, 3], 4))
 lines(V[, 1]*sign(V[1, 1]), col = "red")
 lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
@@ -134,13 +125,13 @@ matplot(seq(1, m), results_spca[1, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.2
         col = alpha(c('orangered', 'blue', 'green'), 0.5))
 text(x = 220, y = 0.22, labels = 'Recovery:')
 text(x = 300, y = 0.22, labels = 'Angle')
-text(x = 300, y = 0.15, labels = round(recovery_spca[1, 1], 4))
-text(x = 300, y = 0.10, labels = round(recovery_spca[1, 2], 4))
-text(x = 300, y = 0.05, labels = round(recovery_spca[1, 3], 4))
+text(x = 300, y = 0.15, labels = round(angleRec_spca[1, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spca[1, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spca[1, 3], 4))
 text(x = 400, y = 0.22, labels = 'Pattern')
-text(x = 400, y = 0.15, labels = round(pattern_spca[1, 1], 4))
-text(x = 400, y = 0.10, labels = round(pattern_spca[1, 2], 4))
-text(x = 400, y = 0.05, labels = round(pattern_spca[1, 3], 4))
+text(x = 400, y = 0.15, labels = round(patternRec_spca[1, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spca[1, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spca[1, 3], 4))
 lines(V[, 1]*sign(V[1, 1]), col = "red")
 lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
@@ -151,13 +142,13 @@ matplot(seq(1, m), results_spca[2, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.2
         col = alpha(c('orangered', 'blue', 'green'), 0.5))
 text(x = 220, y = 0.22, labels = 'Recovery:')
 text(x = 300, y = 0.22, labels = 'Angle')
-text(x = 300, y = 0.15, labels = round(recovery_spca[2, 1], 4))
-text(x = 300, y = 0.10, labels = round(recovery_spca[2, 2], 4))
-text(x = 300, y = 0.05, labels = round(recovery_spca[2, 3], 4))
+text(x = 300, y = 0.15, labels = round(angleRec_spca[2, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spca[2, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spca[2, 3], 4))
 text(x = 400, y = 0.22, labels = 'Pattern')
-text(x = 400, y = 0.15, labels = round(pattern_spca[2, 1], 4))
-text(x = 400, y = 0.10, labels = round(pattern_spca[2, 2], 4))
-text(x = 400, y = 0.05, labels = round(pattern_spca[2, 3], 4))
+text(x = 400, y = 0.15, labels = round(patternRec_spca[2, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spca[2, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spca[2, 3], 4))
 lines(V[, 1]*sign(V[1, 1]), col = "red")
 lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
@@ -168,15 +159,16 @@ matplot(seq(1, m), results_spca[3, ,] , xlab = "Index", ylab = "", ylim = c(-0.1
         col = alpha(c('orangered', 'blue', 'green'), 0.5))
 text(x = 220, y = 0.22, labels = 'Recovery:')
 text(x = 300, y = 0.22, labels = 'Angle')
-text(x = 300, y = 0.15, labels = round(recovery_spca[3, 1], 4))
-text(x = 300, y = 0.10, labels = round(recovery_spca[3, 2], 4))
-text(x = 300, y = 0.05, labels = round(recovery_spca[3, 3], 4))
+text(x = 300, y = 0.15, labels = round(angleRec_spca[3, 1], 4))
+text(x = 300, y = 0.10, labels = round(angleRec_spca[3, 2], 4))
+text(x = 300, y = 0.05, labels = round(angleRec_spca[3, 3], 4))
 text(x = 400, y = 0.22, labels = 'Pattern')
-text(x = 400, y = 0.15, labels = round(pattern_spca[3, 1], 4))
-text(x = 400, y = 0.10, labels = round(pattern_spca[3, 2], 4))
-text(x = 400, y = 0.05, labels = round(pattern_spca[3, 3], 4))
+text(x = 400, y = 0.15, labels = round(patternRec_spca[3, 1], 4))
+text(x = 400, y = 0.10, labels = round(patternRec_spca[3, 2], 4))
+text(x = 400, y = 0.05, labels = round(patternRec_spca[3, 3], 4))
 lines(V[, 1]*sign(V[1, 1]), col = "red")
 lines(V[, 2]*sign(V[sp_card+1, 2]), col = "red")
 lines(V[, 3]*sign(V[2*sp_card+1, 3]), col = "red")
 grid()
 
+dev.off()
