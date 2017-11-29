@@ -42,7 +42,7 @@ This vignette illustrates the computation of sparse eigenvectors or sparse PCA w
 # Comparison with other packages
 We compare the proposed function `spEigen()` with the function `spca()` from the `elasticnet` package. 
 
-First, we illustrate how the functions scale with dimension. For this, we generate synthetic data with sparse eigenvectors (see next section for details) of increasing dimension (100 Monte Carlo runs in each dimension). We apply the two functions to extract the first three eigenvectors. Figure 1 illustrates how the running time of the two functions increase as we increase the dimension of the problem. It is clear that `spEigen()` scales very well, while `spca()` becomes impractical for large dimensions.
+First, we illustrate how the functions scale with dimension. For this, we generate synthetic data with sparse eigenvectors (see next section for details) of increasing dimension (100 Monte Carlo runs in each dimension). We apply the two functions to extract the first three eigenvectors. The figure below illustrates how the running time of the two functions increase as we increase the dimension of the problem. It is clear that `spEigen()` scales very well, while `spca()` becomes impractical for large dimensions.
 
 ```{r include=FALSE, eval=FALSE}
 library(sparseEigen)
@@ -111,16 +111,18 @@ avg_spca <- rowMeans(time_spca)
 results <- matrix(c(avg_spca, avg_spEigen), ncol=2)
 
 ########## Plots ##########
+png(file="lala.png", width = ???, height = ???, units = "cm", res = 120)  #default res = 72
 matplot(dims, results , pch=1, col = 1:2, type = 'b',
         main = "Average running time", xlab = "Dimension", ylab = "Time", log = 'y', yaxt = 'n') 
 axis(2, at = 10^(c(-1, 0, 1, 2)))
 legend("topleft", legend = c('spca()', 'spEigen()'), col=1:2, pch=1) 
 grid()
+dev.off()
 ```
 
-![Average running time.](figures/running_time.jpeg){width=95%}
+![Average running time.](figures/running_time.eps){width=95%}
 
-Another advantage of `spEigen()` (and `spEigenCov()`) is the parsimony and robustness in parameter selection. To illustrate this, in Figure 2 we compare the angle and pattern recovery ability of `spEigen()` and `spca()`. To this end, we generate 200 samples form a multivariate Gaussian distribution of dimension 500, following the process described in the next section. 
+Another advantage of `spEigen()` (and `spEigenCov()`) is the parsimony and robustness in parameter selection. To illustrate this, in the next figure we compare the angle and pattern recovery ability of `spEigen()` and `spca()`. To this end, we generate 200 samples form a multivariate Gaussian distribution of dimension 500, following the process described in the next section. 
 
 ```{r include=FALSE, eval=FALSE}
 library(sparseEigen)
