@@ -1,7 +1,5 @@
-source("spEigen.R")
-
-#--------------------#
 # Libraries required #
+library(sparseEigen)
 library(mvtnorm) # rmvnorm function for data generation
 library(elasticnet)
 library(scales)
@@ -66,8 +64,9 @@ for (i in 1:3) {
 
 
 # Plots
+#load("running_time.RData")
 # cairo_ps(filename = "recovery.ps")
-png(file="recovery.png", width = 16, height = 12, units = "cm", res = 1200)
+png(file="recovery.png", width = 28, height = 14, units = "cm", res = 300)
 par(mfcol = c(3, 2), mai = c(0.6, 0.5, 0.3, 0.5))
 matplot(seq(1, m), results_spEigen[1, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
         main = paste('spEigen: rho =', rho[1]), type = "h",
