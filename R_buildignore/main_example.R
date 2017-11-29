@@ -9,7 +9,7 @@ library(mvtnorm) # rmvnorm function for data generation
 #------------#
 # Parameters #
 m <- 300 # dimension
-n <- 200 # number of samples
+n <- 400 # number of samples
 q <- 3 # number of sparse eigenvectors to be estimated
 sp_card <- 0.1*m # cardinality of the sparse eigenvectors
 rho <- 0.5

@@ -66,9 +66,9 @@ for (i in 1:3) {
 
 
 # Plots
-cairo_ps(filename = "recovery.ps")
-
-par(mfcol = c(3, 2))
+# cairo_ps(filename = "recovery.ps")
+png(file="recovery.png", width = 16, height = 12, units = "cm", res = 1200)
+par(mfcol = c(3, 2), mai = c(0.6, 0.5, 0.3, 0.5))
 matplot(seq(1, m), results_spEigen[1, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
         main = paste('spEigen: rho =', rho[1]), type = "h",
         col = alpha(c('orangered', 'blue', 'green'), 0.5))

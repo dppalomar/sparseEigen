@@ -113,14 +113,14 @@ results <- matrix(c(avg_spca, avg_spEigen), ncol=2)
 ########## Plots ##########
 png(file="lala.png", width = ???, height = ???, units = "cm", res = 120)  #default res = 72
 matplot(dims, results , pch=1, col = 1:2, type = 'b',
-        main = "Average running time", xlab = "Dimension", ylab = "Time", log = 'y', yaxt = 'n') 
+        xlab = "Dimension", ylab = "Time", log = 'y', yaxt = 'n') 
 axis(2, at = 10^(c(-1, 0, 1, 2)))
 legend("topleft", legend = c('spca()', 'spEigen()'), col=1:2, pch=1) 
 grid()
 dev.off()
 ```
 
-![Average running time.](figures/running_time.eps){width=95%}
+![Average running time.](figures/running_time.png){width=65%}
 
 Another advantage of `spEigen()` (and `spEigenCov()`) is the parsimony and robustness in parameter selection. To illustrate this, in the next figure we compare the angle and pattern recovery ability of `spEigen()` and `spca()`. To this end, we generate 200 samples form a multivariate Gaussian distribution of dimension 500, following the process described in the next section. 
 
