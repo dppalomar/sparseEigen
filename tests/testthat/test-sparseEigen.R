@@ -18,6 +18,12 @@ test_that("NA check", {
 })
 
 test_that("positive integer q check", {
+  m = 10
+  n = 15
+  q = 3
+
+  X <- matrix(rnorm(m*n), ncol=m)
+
   expect_error(spEigen(X, -1, 0.5, data=TRUE))
   expect_error(spEigen(X, 0, 0.5, data=TRUE))
   expect_error(spEigen(X, 0.5, 0.5, data=TRUE))
@@ -30,6 +36,12 @@ test_that("positive integer q check", {
 })
 
 test_that("input dimension check", {
+  m = 10
+  n = 15
+  q = 3
+
+  X <- matrix(rnorm(m*n), ncol=m)
+
   expect_error(spEigen(X[, 1], q, 0.5, data=TRUE)) # m > 1
   expect_error(spEigen(cov(X[, 1]), q, 0.5)) # m > 1
   expect_error(spEigenCov(cov(X[, 1]), q, 0.5)) # m > 1
@@ -41,6 +53,12 @@ test_that("input dimension check", {
 
 
 test_that("output dimension check", {
+  m = 10
+  n = 15
+  q = 3
+
+  X <- matrix(rnorm(m*n), ncol=m)
+
   res <- spEigen(X, q, 0.5, data=TRUE)
   expect_equal(length(res$vectors), m*q)
   expect_equal(length(res$values), q)

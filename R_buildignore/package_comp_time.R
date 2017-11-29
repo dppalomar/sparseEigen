@@ -69,11 +69,18 @@ results <- matrix(c(avg_spca, avg_spEigen), ncol=2)
 
 ########## Plots ##########
 #load("running_time.RData")
-png(file="running_time.png", width = 26, height = 18, units = "cm", res = 300)
-matplot(dims, results , pch=1, col = 1:2, type = 'b',
+png(file="running_time2.png", width = 18, height = 13, units = "cm", res = 600)
+matplot(dims, results, pch=1, col = 1:2, type = 'b',
         xlab = "Dimension", ylab = "Time", log = 'y', yaxt = 'n')
 axis(2, at = 10^(c(-1, 0, 1, 2)))
 legend("topleft", legend = c('spca()', 'spEigen()'), col=1:2, pch=1)
 grid()
+par(new = TRUE)
+matplot(dims, results, pch=1, col = 1:2, type = 'b',
+        xlab = "Dimension", ylab = "Time", log = 'y', yaxt = 'n')
+axis(2, at = 10^(c(-1, 0, 1, 2)))
+legend("topleft", legend = c('spca()', 'spEigen()'), col=1:2, pch=1)
 dev.off()
+
+
 
