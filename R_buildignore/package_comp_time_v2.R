@@ -14,8 +14,8 @@ mc <- 50 # monte carlo for each dimension
 dims <- 100*seq(1, 8)
 
 # Initialize
-# time_spEigen <- matrix(rep(0, mc*length(dims)), nrow = length(dims))
-# time_spca <- matrix(rep(0, mc*length(dims)), nrow = length(dims))
+time_spEigen <- matrix(rep(0, mc*length(dims)), nrow = length(dims))
+time_spca <- matrix(rep(0, mc*length(dims)), nrow = length(dims))
 time_spcagrid <- matrix(rep(0, mc*length(dims)), nrow = length(dims))
 
 
@@ -42,8 +42,8 @@ for (dd in 1:length(dims)) {
   R <- V %*% diag(lmd) %*% Conj(t(V))
 
   # Call the function once to get it into memory
-  # res_spEigen <- spEigen(R, q, rho)
-  # res_spca <- spca(R, K=q, type="Gram", sparse="penalty", trace=FALSE, para=c(.4,.4,.4))
+  res_spEigen <- spEigen(R, q, rho)
+  res_spca <- spca(R, K=q, type="Gram", sparse="penalty", trace=FALSE, para=c(.4,.4,.4))
   res_spcagrid <- SPcaGrid(R, lambda=rho, k=q)
 
   ########## Monte Carlo ##########
@@ -52,15 +52,15 @@ for (dd in 1:length(dims)) {
     X <- rmvnorm(n = n, mean = rep(0, m), sigma = R) # random data with underlying sparse structure
 
     # 1. spEigen()
-    # ptm <- proc.time()
-    # res_spEigen <- spEigen(X, q, rho, data=TRUE)
-    # time_spEigen[dd, ii] <- (proc.time() - ptm)[3]
+    ptm <- proc.time()
+    res_spEigen <- spEigen(X, q, rho, data=TRUE)
+    time_spEigen[dd, ii] <- (proc.time() - ptm)[3]
 
     # 2. spca() - without including the time of calculating the covariance
-    # Xc <- cov(X)
-    # ptm <- proc.time()
-    # res_spca <- spca(Xc, K=q, type="Gram", sparse="penalty", trace=FALSE, para=c(.4,.4,.4))
-    # time_spca[dd, ii] <- (proc.time() - ptm)[3]
+    Xc <- cov(X)
+    ptm <- proc.time()
+    res_spca <- spca(Xc, K=q, type="Gram", sparse="penalty", trace=FALSE, para=c(.4,.4,.4))
+    time_spca[dd, ii] <- (proc.time() - ptm)[3]
 
     # 3. SPcaGrid()
     ptm <- proc.time()
@@ -70,26 +70,25 @@ for (dd in 1:length(dims)) {
 }
 
 # average
-# avg_spEigen <- rowMeans(time_spEigen)
-# avg_spca <- rowMeans(time_spca)
+avg_spEigen <- rowMeans(time_spEigen)
+avg_spca <- rowMeans(time_spca)
 avg_spcagrid <- rowMeans(time_spcagrid)
 results <- matrix(c(avg_spca, avg_spcagrid, avg_spEigen), ncol=3)
 
-load("C:/Users/kbenidis/Dropbox/Documents/HKUST/R Packages/sparseEigen/R_buildignore/running_time.RData")
 ########## Plots ##########
-#load("running_time.RData")
+# load("running_time.RData")
 png(file="running_time2.png", width = 18, height = 13, units = "cm", res = 600)
 matplot(dims, results, pch=1, col = 1:3, type = 'b',
         xlab = "Dimension", ylab = "Time", log = 'y', yaxt = 'n')
 axis(2, at = 10^(c(-1, 0, 1, 2)))
-legend("topleft", legend = c('spca()', 'SPcaGrid()', 'spEigen()'), col=1:2, pch=1)
+legend("topleft", legend = c('spca()', 'SPcaGrid()', 'spEigen()'), col=1:3, pch=1)
 grid()
 par(new = TRUE)
 matplot(dims, results, pch=1, col = 1:3, type = 'b',
         xlab = "Dimension", ylab = "Time", log = 'y', yaxt = 'n')
 axis(2, at = 10^(c(-1, 0, 1, 2)))
-legend("topleft", legend = c('spca()', 'SPcaGrid()', 'spEigen()'), col=1:2, pch=1)
+legend("topleft", legend = c('spca()', 'SPcaGrid()', 'spEigen()'), col=1:3, pch=1)
 dev.off()
 
-
+# save.image(file = 'runnong_time_v2.RData')
 
