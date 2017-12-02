@@ -80,8 +80,9 @@ for (i in 1:3) {
 
 # Plots
 #load("running_time.RData")
-# cairo_ps(filename = "recovery.ps")
 png(file="recovery.png", width = 20, height = 14, units = "cm", res = 900)
+setEPS(); postscript("recovery.eps", width = 20*0.393701, height = 14*0.393701)
+cairo_ps(filename = "recovery.ps", width = 20*0.393701, height = 14*0.393701)
 par(mfcol = c(3, 3), mai = c(0.6, 0.3, 0.3, 0.3))
 matplot(seq(1, m), results_spEigen[1, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
         main = paste('spEigen: rho =', rho[1]), type = "h",

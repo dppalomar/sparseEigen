@@ -29,7 +29,6 @@ m <- 500  # dimension
 n <- 100  # number of samples
 q <- 3  # number of sparse eigenvectors to be estimated
 sp_card <- 0.1*m  # cardinality of each sparse eigenvector
-rho <- 0.5  # sparsity level
 
 # generate non-overlapping sparse eigenvectors
 V <- matrix(0, m, q)
@@ -54,7 +53,7 @@ Then, we estimate the covariance matrix with `cov(X)` and compute its sparse eig
 ``` r
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
-res_sparse <- spEigen(cov(X), q, rho)
+res_sparse <- spEigen(cov(X), q)
 ```
 
 We can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors (the closer to 1 the better):
@@ -78,7 +77,7 @@ Then, we compute the covariance matrix through the joint estimation of sparse ei
 
 ``` r
 # computation of covariance matrix
-res_sparse2 <- spEigenCov(cov(X), q, rho)
+res_sparse2 <- spEigenCov(cov(X), q)
 ```
 
 Again, we can assess how good the estimated eigenvectors are by computing the inner product with the original eigenvectors:

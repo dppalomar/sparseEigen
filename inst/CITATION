@@ -1,0 +1,21 @@
+citHeader("To cite sparseEigen in publications use:")
+
+citEntry(entry = "Article",
+         title        = "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation",
+         author       = personList(as.person("K. Benidis"),
+                                   as.person("Y. Sun"),
+                                   as.person("P. Babu"),
+                                   as.person("D. P. Palomar")),
+         journal      = "IEEE Transactions on Signal Processing",
+         year         = "2016",
+         volume       = "64",
+         number       = "23",
+         pages        = "6211--6226",
+         url          = "http://www.danielppalomar.com/publications.html",
+
+         textVersion  =
+           paste("K. Benidis, Y. Sun, P. Babu, D. P. Palomar,",
+                 "\"Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,\"",
+                 "IEEE Transactions on Signal Processing,",
+                 "vol. 64, no. 23, pp. 6211-6226, Dec. 2016.")
+)

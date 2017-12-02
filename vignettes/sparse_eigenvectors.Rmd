@@ -28,6 +28,7 @@ knitr::opts_chunk$set(
   fig.align = "center"
 )
 #rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "all")
+#rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "pdf_document")
 ```
 
 -----------
