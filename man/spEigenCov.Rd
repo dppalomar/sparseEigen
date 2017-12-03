@@ -43,7 +43,7 @@ X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse struct
 
 # standard and sparse estimation
 res_standard <- eigen(cov(X))
-res_sparse <- spEigenCov(cov(X), q, rho)
+res_sparse <- spEigenCov(cov(X), q)
 
 # show inner product between estimated eigenvectors and originals (the closer to 1 the better)
 abs(diag(t(res_standard$vectors) \%*\% V[, 1:q]))  #for standard estimated eigenvectors
@@ -54,8 +54,8 @@ norm(cov(X) - R, type = 'F') #for sample covariance matrix
 norm(res_sparse$cov - R, type = 'F') #for covariance with sparse eigenvectors
 }
 \references{
-K. Benidis, Y. Sun, P. Babu, D.P. Palomar "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
-IEEE Transactions on Signal Processing, vol 64, no. 23, pp. 6211-6226, Dec. 2016.
+K. Benidis, Y. Sun, P. Babu, D. P. Palomar, "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
+\emph{IEEE Transactions on Signal Processing}, vol. 64, no. 23, pp. 6211-6226, Dec. 2016.
 }
 \author{
 Konstantinos Benidis and Daniel P. Palomar
