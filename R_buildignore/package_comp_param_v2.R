@@ -20,7 +20,7 @@ lam <- c(0.1, 0.5, 0.9) # sparsity parameters for SpcaGrid()
 # True Covariance #
 # generate non-overlapping sparse eigenvectors
 V <- matrix(rep(0, m*q), ncol = q)
-V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 1/sqrt(sp_card)* exp(1i*runif(sp_card*q, 0, 2*pi))
+V[cbind(seq(1, q*sp_card), rep(1:q, each = sp_card))] <- 1/sqrt(sp_card)
 V <- cbind(V, matrix(rnorm(m*(m-q)), m, m-q))
 
 V <- qr.Q(qr(V)) # orthogonalization, but keep the first eigenvectors to be same as V
@@ -33,7 +33,7 @@ R <- V %*% diag(lmd) %*% Conj(t(V))
 
 # Data Matrix
 X <- rmvnorm(n = n, mean = rep(0, m), sigma = R) # random data with underlying sparse structure
-browser()
+
 # Sparse Eigenvector Extraction
 results_spEigen <- array(0, dim=c(3, m, 3))
 results_spca <- array(0, dim=c(3, m, 3))
@@ -80,8 +80,8 @@ for (i in 1:3) {
 
 # Plots
 #load("running_time.RData")
-# cairo_ps(filename = "recovery.ps")
-png(file="recovery.png", width = 20, height = 14, units = "cm", res = 900)
+cairo_ps(filename = "recovery.ps")
+# png(file="recovery.png", width = 20, height = 14, units = "cm", res = 900)
 par(mfcol = c(3, 3), mai = c(0.6, 0.3, 0.3, 0.3))
 matplot(seq(1, m), results_spEigen[1, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
         main = paste('spEigen: rho =', rho[1]), type = "h",
