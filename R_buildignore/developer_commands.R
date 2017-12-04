@@ -29,11 +29,13 @@ devtools::build()  # to generate the installation file
 
 # Vignettes
 #devtools::use_vignette("sparse_eigenvectors")  # to create the folder the first time
-#rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "md_document")  # this is to generate the .md for GitHub
-#rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "pdf_document")
-rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "all")  # this also generates the pdf
-#tools::compactPDF("vignettes/sparse_eigenvectors.pdf", gs_quality = "printer")  # this compresses the pdf
-devtools::build_vignettes()  # or just install() will do
+#rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "md_document")  # this is to generate the .md for GitHub
+#rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "pdf_document")
+rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "all")  # this also generates the pdf
+#tools::compactPDF("vignettes/SparseEigenvectors.pdf", gs_quality = "printer")  # this compresses the pdf
+devtools::build_vignettes()
+#browseVignettes("sparseEigen")
+#help(package="sparseEigen")
 
 # Documentation
 devtools::document()  #to generate all documentation via roxygen
@@ -56,7 +58,9 @@ covr::package_coverage()  #coverage of tests
 # CRAN check
 devtools::check()
 rcmdcheck::rcmdcheck()
-#R CMD check . --as-cran  # this is before submission to CRAN
+devtools::build()
+#R CMD build .
+#R CMD check ../sparseEigen_0.1.0.tar.gz --as-cran  # this is before submission to CRAN
 
 # to upload to CRAN
 devtools::build_win()

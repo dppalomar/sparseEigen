@@ -3,8 +3,7 @@ title: "Computing sparse eigenvectors"
 author: "Konstantinos Benidis and Daniel P. Palomar"
 date: '`r Sys.Date()`'
 output:
-  rmarkdown::html_vignette: 
-    default:
+  rmarkdown::html_vignette:
     number_sections: yes
     toc: yes
     toc_depth: 2
@@ -17,7 +16,8 @@ graphics: yes
 csl: ieee.csl
 bibliography: refs.bib
 vignette: |
-  %\VignetteIndexEntry{Computing sparse eigenvectors} 
+  %\VignetteIndexEntry{Computation of sparse eigenvectors or sparse PCA}
+  %\VignetteKeyword{sparse, eigenvector, PCA}
   %\VignetteEncoding{UTF-8} 
   %\VignetteEngine{knitr::rmarkdown}
 ---
@@ -28,8 +28,8 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.align = "center"
 )
-#rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "all")
-#rmarkdown::render("vignettes/sparse_eigenvectors.Rmd", "pdf_document")
+#rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "all")
+#rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "pdf_document")
 ```
 
 -----------

@@ -1,12 +1,11 @@
 Package: sparseEigen
-Title: Computation of sparse eigenvectors of a matrix
 Version: 0.1.0
+Title: Computation of Sparse Eigenvectors of a Matrix
+Description: Computation of sparse eigenvectors of a matrix 
+    (aka sparse PCA).
 Author: Konstantinos Benidis <benidisk@gmail.com> [aut, cre],
     Daniel P. Palomar <daniel.p.palomar@gmail.com> [aut, cre]
 Maintainer: Daniel P. Palomar <daniel.p.palomar@gmail.com>
-Description: This package provides functions to compute sparse eigenvectors 
-    (while keeping their orthogonality) or sparse PCA from either the 
-    covariance matrix or directly the data matrix.
 URL: https://github.com/dppalomar/sparseEigen
 BugReports: https://github.com/dppalomar/sparseEigen/issues
 Depends: R (>= 3.4.0)
