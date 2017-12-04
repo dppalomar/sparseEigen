@@ -64,7 +64,7 @@ devtools::build()
 
 # to upload to CRAN
 devtools::build_win()
-#devtools::release()  #for CRAN
+devtools::release()  #for CRAN
 
 
 
