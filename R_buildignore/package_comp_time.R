@@ -16,7 +16,6 @@ dims <- 100*seq(1, 8)
 # Initialize
 time_spEigen <- matrix(rep(0, mc*length(dims)), nrow = length(dims))
 time_spca <- matrix(rep(0, mc*length(dims)), nrow = length(dims))
-time_spcagrid <- matrix(rep(0, mc*length(dims)), nrow = length(dims))
 
 
 for (dd in 1:length(dims)) {
@@ -44,7 +43,6 @@ for (dd in 1:length(dims)) {
   # Call the function once to get it into memory
   res_spEigen <- spEigen(R, q, rho)
   res_spca <- spca(R, K=q, type="Gram", sparse="penalty", trace=FALSE, para=c(.4,.4,.4))
-  res_spcagrid <- SPcaGrid(R, lambda=rho, k=q)
 
   ########## Monte Carlo ##########
   for (ii in 1:mc) {
@@ -61,35 +59,28 @@ for (dd in 1:length(dims)) {
     ptm <- proc.time()
     res_spca <- spca(Xc, K=q, type="Gram", sparse="penalty", trace=FALSE, para=c(.4,.4,.4))
     time_spca[dd, ii] <- (proc.time() - ptm)[3]
-
-    # 3. SPcaGrid()
-    ptm <- proc.time()
-    res_spcagrid <- SPcaGrid(X, lambda=rho, k=q)
-    time_spcagrid[dd, ii] <- (proc.time() - ptm)[3]
   }
 }
 
 # average
 avg_spEigen <- rowMeans(time_spEigen)
 avg_spca <- rowMeans(time_spca)
-avg_spcagrid <- rowMeans(time_spcagrid)
-results <- matrix(c(avg_spca, avg_spcagrid, avg_spEigen), ncol=3)
+results <- matrix(c(avg_spca, avg_spEigen), ncol=2)
 
 ########## Plots ##########
-# load("running_time.RData")
-png(file="running_time2.png", width = 18, height = 13, units = "cm", res = 600) # 4251 x 3070 pixels
-#setEPS(); postscript("running_time2.eps", width=18*0.393701, height=13*0.393701)
-matplot(dims, results, pch=1, col = 1:3, type = 'b',
+#load("running_time.RData")
+png(file="running_time2.png", width = 18, height = 13, units = "cm", res = 600)
+matplot(dims, results, pch=1, col = 1:2, type = 'b',
         xlab = "Dimension", ylab = "Time", log = 'y', yaxt = 'n')
 axis(2, at = 10^(c(-1, 0, 1, 2)))
-legend("topleft", legend = c('spca()', 'SPcaGrid()', 'spEigen()'), col=1:3, pch=1)
+legend("topleft", legend = c('spca()', 'spEigen()'), col=1:2, pch=1)
 grid()
 par(new = TRUE)
-matplot(dims, results, pch=1, col = 1:3, type = 'b',
+matplot(dims, results, pch=1, col = 1:2, type = 'b',
         xlab = "Dimension", ylab = "Time", log = 'y', yaxt = 'n')
 axis(2, at = 10^(c(-1, 0, 1, 2)))
-legend("topleft", legend = c('spca()', 'SPcaGrid()', 'spEigen()'), col=1:3, pch=1)
+legend("topleft", legend = c('spca()', 'spEigen()'), col=1:2, pch=1)
 dev.off()
 
-# save.image(file = 'runnong_time_v2.RData')
+
 

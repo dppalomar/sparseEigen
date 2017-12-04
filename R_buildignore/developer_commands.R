@@ -50,16 +50,18 @@ lintr::lint_package()
 #devtools::use_testthat()  # the first time
 devtools::test()
 covr::package_coverage()  #coverage of tests
+#goodpractice::gp()  # overall checks
 
-
-# overall checks:
-#goodpractice::gp()
 
 # CRAN check
 devtools::check()
 rcmdcheck::rcmdcheck()
-#R CMD check --as-cran  # this is before submission to CRAN
-#R CMD check --as-cran --compact-vignettes
+#R CMD check . --as-cran  # this is before submission to CRAN
 
 # to upload to CRAN
+devtools::build_win()
 #devtools::release()  #for CRAN
+
+
+
+

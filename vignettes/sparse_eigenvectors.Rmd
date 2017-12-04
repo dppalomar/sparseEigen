@@ -3,7 +3,8 @@ title: "Computing sparse eigenvectors"
 author: "Konstantinos Benidis and Daniel P. Palomar"
 date: '`r Sys.Date()`'
 output:
-  rmarkdown::html_vignette:
+  rmarkdown::html_vignette: 
+    default:
     number_sections: yes
     toc: yes
     toc_depth: 2

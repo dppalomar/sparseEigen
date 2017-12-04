@@ -1,0 +1,9 @@
+* using log directory '/Users/palomar/Documents/TradingPlatform/platform/packages/sparseEigen/..Rcheck'
+* using R version 3.4.2 (2017-09-28)
+* using platform: x86_64-apple-darwin15.6.0 (64-bit)
+* using session charset: UTF-8
+* using option '--as-cran'
+* checking for file './DESCRIPTION' ... OK
+* this is package 'sparseEigen' version '0.1.0'
+* package encoding: UTF-8
+* checking CRAN incoming feasibility ...
