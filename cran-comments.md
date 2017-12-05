@@ -10,9 +10,8 @@ This is the first release in CRAN (package also available in GitHub).
 
 There were no ERRORs.
 
-There were two WARNINGs:
+There was one WARNINGs:
 * about the possibility of compressing the pdf of the vignette. However, if I do the second figure in the pdf becomes really low quality, which is unacceptable
-* warns about package vignette without the corresponding pdf/html, but the vignette has both pdf and html.
 
 ## Reverse dependencies
 
