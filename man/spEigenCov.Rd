@@ -24,6 +24,7 @@ A list with the following components:
 Estimates the covariance matrix with sparse (orthogonal) eigenvectors (in other words, it jointly estimates the sparse eigenvectors and the eigenvalues).
 }
 \examples{
+\dontrun{
 library(sparseEigen)
 n <- 600  # samples
 m <- 500  # dimension
@@ -52,6 +53,7 @@ abs(diag(t(res_sparse$vectors) \%*\% V[, 1:q]))    #for sparse estimated eigenve
 # show error between estimated and true covariance
 norm(cov(X) - R, type = 'F') #for sample covariance matrix
 norm(res_sparse$cov - R, type = 'F') #for covariance with sparse eigenvectors
+}
 }
 \references{
 K. Benidis, Y. Sun, P. Babu, D. P. Palomar, "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"

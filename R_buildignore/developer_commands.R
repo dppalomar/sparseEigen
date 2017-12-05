@@ -60,7 +60,7 @@ devtools::check()
 rcmdcheck::rcmdcheck()
 devtools::build()
 #R CMD build .
-#R CMD check ../sparseEigen_0.1.0.tar.gz --as-cran  # this is before submission to CRAN
+#R CMD check sparseEigen_0.1.0.tar.gz --as-cran  # this is before submission to CRAN
 
 # to upload to CRAN
 devtools::build_win()

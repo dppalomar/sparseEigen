@@ -14,6 +14,7 @@
 #' K. Benidis, Y. Sun, P. Babu, D. P. Palomar, "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
 #' \emph{IEEE Transactions on Signal Processing}, vol. 64, no. 23, pp. 6211-6226, Dec. 2016.
 #' @examples
+#' \dontrun{
 #' library(sparseEigen)
 #' n <- 600  # samples
 #' m <- 500  # dimension
@@ -42,6 +43,7 @@
 #' # show error between estimated and true covariance
 #' norm(cov(X) - R, type = 'F') #for sample covariance matrix
 #' norm(res_sparse$cov - R, type = 'F') #for covariance with sparse eigenvectors
+#' }
 #' @export
 spEigenCov <- function(S, q = 1, rho = 0.5, thres = 1e-9) {
   max_iter <- 3000 # maximum MM iterations
