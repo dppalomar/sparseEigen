@@ -33,7 +33,7 @@ devtools::build()  # to generate the installation file
 #rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "pdf_document")
 rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "all")  # this also generates the pdf
 #tools::compactPDF("vignettes/SparseEigenvectors.pdf", gs_quality = "printer")  # this compresses the pdf
-devtools::build_vignettes()
+#devtools::build_vignettes()
 #browseVignettes("sparseEigen")
 #help(package="sparseEigen")
 
