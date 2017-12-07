@@ -82,8 +82,10 @@ for (i in 1:3) {
 # png(file="recovery.png", width = 20, height = 14, units = "cm", res = 900)
 # postscript("recovery.eps", width = 20*0.393701, height = 14*0.393701)
 # alpha <- function(colour, alpha) {return(colour)}  # to remove the transparency that kills the eps
-cairo_ps(filename = "recovery.ps", width = 20*0.393701, height = 14*0.393701, fallback_resolution = 300)  #this allows transparency but the size if huge
+# cairo_ps(filename = "recovery.ps", width = 20*0.393701, height = 14*0.393701, fallback_resolution = 300)  #this allows transparency but the size if huge
 # Cairo(file = 'recovery.ps', type = 'ps', units = 'cm', width = 20, height = 14, dpi = 300)
+
+pdf('recovery.pdf', width = 20*0.393701, height = 14*0.393701)
 par(mfcol = c(3, 3), mai = c(0.6, 0.3, 0.3, 0.3))
 matplot(seq(1, m), results_spEigen[1, ,] , xlab = "", ylab = "", ylim = c(-0.1, 0.25), lty = 'solid',
         main = paste('spEigen: rho =', rho[1]), type = "h",
