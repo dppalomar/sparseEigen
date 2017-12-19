@@ -77,8 +77,10 @@ results <- matrix(c(avg_spca, avg_spcagrid, avg_spEigen), ncol=3)
 
 ########## Plots ##########
 # load("running_time.RData")
-png(file="running_time2.png", width = 18, height = 13, units = "cm", res = 600) # 4251 x 3070 pixels
+# png(file="running_time2.png", width = 18, height = 13, units = "cm", res = 600) # 4251 x 3070 pixels
 #setEPS(); postscript("running_time2.eps", width=18*0.393701, height=13*0.393701)
+pdf('running_time.pdf', width = 18*0.393701, height = 13*0.393701)
+
 matplot(dims, results, pch=1, col = 1:3, type = 'b',
         xlab = "Dimension", ylab = "Time", log = 'y', yaxt = 'n')
 axis(2, at = 10^(c(-1, 0, 1, 2)))

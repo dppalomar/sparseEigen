@@ -32,8 +32,16 @@ devtools::build()  # to generate the installation file
 #rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "md_document")  # this is to generate the .md for GitHub
 #rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "pdf_document")
 rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "all")  # this also generates the pdf
+<<<<<<< HEAD
 #tools::compactPDF("vignettes/SparseEigenvectors.pdf", gs_quality = "printer")  # this compresses the pdf
 #devtools::build_vignettes()
+||||||| merged common ancestors
+#tools::compactPDF("vignettes/SparseEigenvectors.pdf", gs_quality = "printer")  # this compresses the pdf
+devtools::build_vignettes()
+=======
+# tools::compactPDF("vignettes/SparseEigenvectors.pdf", gs_quality = "printer")  # this compresses the pdf
+devtools::build_vignettes()
+>>>>>>> abe14c80df1972cc0376e2f9ceb595305b66936c
 #browseVignettes("sparseEigen")
 #help(package="sparseEigen")
 
