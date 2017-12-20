@@ -12,7 +12,7 @@ Description: Computation of sparse eigenvectors of a matrix (aka sparse PCA)
     The package is based on the paper:
     K. Benidis, Y. Sun, P. Babu, and D. P. Palomar (2016). "Orthogonal Sparse PCA 
     and Covariance Estimation via Procrustes Reformulation," IEEE Transactions on 
-    Signal Processing. <doi:10.1109/TSP.2016.2605073>
+    Signal Processing <doi:10.1109/TSP.2016.2605073>.
 Authors@R: c(
   person("Konstantinos", "Benidis", role = "aut", email = "benidisk@gmail.com"),
   person("Daniel", "Palomar", middle = "P.", role = c("cre", "aut"), email = "daniel.p.palomar@gmail.com")
