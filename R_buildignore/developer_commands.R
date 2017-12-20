@@ -32,8 +32,8 @@ devtools::build()  # to generate the installation file
 #rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "md_document")  # this is to generate the .md for GitHub
 #rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "pdf_document")
 rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "all")  # this also generates the pdf
-# tools::compactPDF("vignettes/SparseEigenvectors.pdf", gs_quality = "printer")  # this compresses the pdf
-devtools::build_vignettes()
+tools::compactPDF("vignettes/SparseEigenvectors.pdf", gs_quality = "ebook")  # this compresses the pdf
+#devtools::build_vignettes()
 #browseVignettes("sparseEigen")
 #help(package="sparseEigen")
 
