@@ -8,10 +8,7 @@ This is the first release in CRAN (package also available in GitHub).
 
 ## R CMD check results
 
-There were no ERRORs.
-
-There was one WARNINGs:
-* about the possibility of compressing the pdf of the vignette. However, if I do the second figure in the pdf becomes really low quality, which is unacceptable
+There were no ERRORs or WARNINGs.
 
 ## Reverse dependencies
 
