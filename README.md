@@ -5,13 +5,16 @@ Installation
 ------------
 
 ``` r
+# Installation from CRAN
+install.packages("sparseEigen")
+
 # Installation from GitHub
 # install.packages("devtools")
 devtools::install_github("dppalomar/sparseEigen")
 
-# Get help
+# Getting help
 library(sparseEigen)
-help(package="sparseEigen")
+help(package = "sparseEigen")
 ?spEigen
 ```
 

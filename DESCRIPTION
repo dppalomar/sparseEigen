@@ -15,7 +15,7 @@ Description: Computation of sparse eigenvectors of a matrix (aka sparse PCA)
     Signal Processing <doi:10.1109/TSP.2016.2605073>.
 Authors@R: c(
   person("Konstantinos", "Benidis", role = "aut", email = "benidisk@gmail.com"),
-  person("Daniel", "Palomar", middle = "P.", role = c("cre", "aut"), email = "daniel.p.palomar@gmail.com")
+  person(c("Daniel", "P."), "Palomar", role = c("cre", "aut"), email = "daniel.p.palomar@gmail.com")
   )
 Maintainer: Daniel P. Palomar <daniel.p.palomar@gmail.com>
 URL: https://github.com/dppalomar/sparseEigen,
