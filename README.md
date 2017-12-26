@@ -6,7 +6,7 @@ Computation of sparse eigenvectors of a matrix (aka sparse PCA) with running tim
 
 Can handle covariance matrices as well as data matrices with real or complex-valued entries. Different levels of sparsity can be specified for each individual ordered eigenvector and the method is robust in parameter selection. See vignette for a detailed documentation and comparison, with several illustrative examples.
 
-The package is based on the paper: K. Benidis, Y. Sun, P. Babu, and D. P. Palomar (2016), "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation," IEEE Transactions on Signal Processing <doi:10.1109/TSP.2016.2605073>.
+The package is based on the paper: K. Benidis, Y. Sun, P. Babu, and D. P. Palomar (2016), "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation," IEEE Transactions on Signal Processing, <https://doi.org/10.1109/TSP.2016.2605073>.
 
 Installation
 ------------
