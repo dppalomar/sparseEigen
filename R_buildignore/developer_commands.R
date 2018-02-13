@@ -10,6 +10,7 @@ install.packages("sparseEigen")
 # Getting help
 library(sparseEigen)
 help(package="sparseEigen")
+package?sparseEigen
 ?spEigen
 
 
@@ -41,7 +42,7 @@ tools::compactPDF("vignettes/SparseEigenvectors.pdf", gs_quality = "ebook")  # t
 devtools::document()  #to generate all documentation via roxygen
 ?spEigen
 
-# README (.md file has to be generated manually)
+# README (.md file has to be generated manually by clicking Knitr)
 
 
 # code style
@@ -65,7 +66,3 @@ devtools::build()
 # to upload to CRAN
 devtools::build_win()
 devtools::release()  #for CRAN
-
-
-
-

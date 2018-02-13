@@ -56,7 +56,7 @@ norm(res_sparse$cov - R, type = 'F') #for covariance with sparse eigenvectors
 }
 }
 \references{
-K. Benidis, Y. Sun, P. Babu, D. P. Palomar, "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
+K. Benidis, Y. Sun, P. Babu, and D. P. Palomar, "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
 \emph{IEEE Transactions on Signal Processing}, vol. 64, no. 23, pp. 6211-6226, Dec. 2016.
 }
 \author{

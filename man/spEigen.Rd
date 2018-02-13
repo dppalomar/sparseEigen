@@ -58,7 +58,7 @@ abs(diag(t(res_standard$vectors) \%*\% V[, 1:q]))  #for standard estimated eigen
 abs(diag(t(res_sparse$vectors) \%*\% V[, 1:q]))    #for sparse estimated eigenvectors
 }
 \references{
-K. Benidis, Y. Sun, P. Babu, D. P. Palomar, "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
+K. Benidis, Y. Sun, P. Babu, and D. P. Palomar, "Orthogonal Sparse PCA and Covariance Estimation via Procrustes Reformulation,"
 \emph{IEEE Transactions on Signal Processing}, vol. 64, no. 23, pp. 6211-6226, Dec. 2016.
 }
 \author{

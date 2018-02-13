@@ -48,7 +48,11 @@ devtools::install_github("dppalomar/sparseEigen")
 # Getting help
 library(sparseEigen)
 help(package = "sparseEigen")
+package?sparseEigen
 ?spEigen
+
+# Citing this work
+citation("sparseEigen")
 ```
 
 
