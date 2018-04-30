@@ -51,8 +51,8 @@ citation("sparseEigen")
 ```
 
 ## Vignette
-For more detailed information, please check the vignette: [GitHub-html-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.html), [GitHub-pdf-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.hdf),
-[CRAN-pdf-vignette](https://cran.r-project.org/web/packages/sparseEigen/vignettes/SparseEigenvectors.pdf)
+For more detailed information, please check the vignette: [GitHub-html-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.html), [GitHub-pdf-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.pdf),
+[CRAN-pdf-vignette](https://cran.r-project.org/web/packages/sparseEigen/vignettes/SparseEigenvectors.pdf).
 
 ## Usage of `spEigen()`
 We start by loading the package and generating synthetic data with sparse eigenvectors:
@@ -137,9 +137,9 @@ norm(res_sparse2$cov - R, type = 'F') #for covariance with sparse eigenvectors
 ```
 
 ## Links
-Package: [CRAN](https://CRAN.R-project.org/package=sparseEigen) and [GitHub](https://github.com/dppalomar/sparseEigen)
+Package: [CRAN](https://CRAN.R-project.org/package=sparseEigen) and [GitHub](https://github.com/dppalomar/sparseEigen).
 
-README file: [GitHub-readme](https://rawgit.com/dppalomar/sparseEigen/master/README.html) and [CRAN-readme](https://cran.r-project.org/web/packages/sparseEigen/README.html)
+README file: [GitHub-readme](https://rawgit.com/dppalomar/sparseEigen/master/README.html) and [CRAN-readme](https://cran.r-project.org/web/packages/sparseEigen/README.html).
 
-Vignette: [GitHub-html-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.html), [GitHub-pdf-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.hdf),
-[CRAN-pdf-vignette](https://cran.r-project.org/web/packages/sparseEigen/vignettes/SparseEigenvectors.pdf)
+Vignette: [GitHub-html-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.html), [GitHub-pdf-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.pdf),
+[CRAN-pdf-vignette](https://cran.r-project.org/web/packages/sparseEigen/vignettes/SparseEigenvectors.pdf).

@@ -62,7 +62,7 @@ citation("sparseEigen")
 ```
 
 ## Vignette
-For more detailed information, please check the vignette: [GitHub-html-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.html), [GitHub-pdf-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.hdf),
+For more detailed information, please check the vignette: [GitHub-html-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.html), [GitHub-pdf-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.pdf),
 [CRAN-pdf-vignette](https://cran.r-project.org/web/packages/sparseEigen/vignettes/SparseEigenvectors.pdf).
 
 ## Usage of `spEigen()`
@@ -165,5 +165,5 @@ Package: [CRAN](https://CRAN.R-project.org/package=sparseEigen) and [GitHub](htt
 
 README file: [GitHub-readme](https://rawgit.com/dppalomar/sparseEigen/master/README.html) and [CRAN-readme](https://cran.r-project.org/web/packages/sparseEigen/README.html).
 
-Vignette: [GitHub-html-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.html), [GitHub-pdf-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.hdf),
+Vignette: [GitHub-html-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.html), [GitHub-pdf-vignette](https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.pdf),
 [CRAN-pdf-vignette](https://cran.r-project.org/web/packages/sparseEigen/vignettes/SparseEigenvectors.pdf).

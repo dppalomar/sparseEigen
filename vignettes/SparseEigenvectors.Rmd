@@ -55,14 +55,14 @@ First, we illustrate how the functions scale with dimension. For this, we genera
 
 <!-- ![Average running time.](figures/running_time.pdf){width=75%} -->
 ```{r running-time, echo = FALSE, out.width = "75%", fig.cap = "Average running time."}
-knitr::include_graphics('figures/running_time.png', auto_pdf = TRUE)
+knitr::include_graphics("figures/running_time.png", auto_pdf = TRUE)
 ```
 
 Another advantage of `spEigen()` (and `spEigenCov()`) is the parsimony and robustness in parameter selection. To illustrate this, in Figure \@ref(fig:recovery) we compare the angle and pattern recovery ability of the functions. To this end, we generate 200 samples form a multivariate Gaussian distribution of dimension 500, following the process described in the next section. 
 
 <!-- ![Eigenvector recovery.](figures/recovery.png){width=95%} -->
 ```{r recovery, echo = FALSE, out.width = "95%", fig.cap = "Eigenvector recovery."}
-knitr::include_graphics('figures/recovery.png', auto_pdf = TRUE)
+knitr::include_graphics("figures/recovery.png", auto_pdf = TRUE)
 ```
 
 We observe that `spEigen()` requires only one parameter and can recover correctly the eigenvectors for a large range of the parameter's values. On the other hand, `spca()` requires one parameter per eigenvector, the recovery is significantly affected by small changes of these parameters, and in general it underperforms compared to `spEigen()`. Finally, `SPcaGrid()` requires one sparsity parameter (it also accepts one parameter per eigenvector) but cannot capture efficiently the sparsity pattern of the eigenvectors.
