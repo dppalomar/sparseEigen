@@ -30,7 +30,9 @@ Imports:
 RoxygenNote: 6.0.1
 Suggests: 
     knitr,
-    MASS,
     rmarkdown,
-    testthat
+    bookdown,
+    prettydoc,
+    testthat,
+    MASS
 VignetteBuilder: knitr
