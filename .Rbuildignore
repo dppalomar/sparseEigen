@@ -5,3 +5,4 @@
 ^R_buildignore$
 ^papers$
 ^cran-comments.md$
+^README_cache$

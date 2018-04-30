@@ -3,20 +3,20 @@ title: "Computing Sparse Eigenvectors of a Matrix"
 author: "Konstantinos Benidis and Daniel P. Palomar"
 date: '`r Sys.Date()`'
 output:
-  rmarkdown::html_vignette:
+  bookdown::html_document2:  
+    base_format: prettydoc::html_pretty
+    theme: tactile
+    highlight: vignette
+    fig_caption: yes
+    number_sections: no
+    toc: yes
+    toc_depth: 2
+  bookdown::pdf_document2:
     number_sections: yes
     toc: yes
     toc_depth: 2
-    fig_caption: true
-  pdf_document:
-    keep_tex: true
-    number_sections: yes
-    toc: yes
-    toc_depth: 2
-    fig_caption: true
-header-includes: \setlength{\parindent}{12pt}
-                 \usepackage{graphicx}
-graphics: yes
+    fig_caption: yes
+indent: yes
 csl: ieee.csl
 bibliography: refs.bib
 vignette: |
@@ -27,36 +27,41 @@ vignette: |
 ---
 
 ```{r, echo = FALSE}
-knitr::opts_chunk$set(
+library(knitr)
+opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.align = "center"
+  fig.align = "center",
+  fig.retina = 2,
+  out.width = "75%",
+  dpi = 96
 )
+knit_hooks$set(pngquant = hook_pngquant)
 #rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "all")
-#rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "pdf_document")
-#rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "rmarkdown::html_vignette")
+#rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "bookdown::pdf_document2")
+#rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "bookdown::html_document2")
 #tools::compactPDF("vignettes/SparseEigenvectors.pdf", gs_quality = "ebook")
 ```
 
 -----------
-This vignette illustrates the computation of sparse eigenvectors or sparse PCA with the package `sparseEigen` (with a comparison with other packages) and gives a description of the algorithms used.
+> This vignette illustrates the computation of sparse eigenvectors or sparse PCA with the package `sparseEigen` (with a comparison with other packages) and gives a description of the algorithms used.
 
 
 # Comparison with other packages
-We compare the proposed function `spEigen()` with the functions `elasticnet::spca()` and `rrcovHD::SPcaGrid()`. 
+We compare the proposed function `spEigen()` with the existing functions `elasticnet::spca()` and `rrcovHD::SPcaGrid()`. 
 
-First, we illustrate how the functions scale with dimension. For this, we generate synthetic data with sparse eigenvectors (see next section for details) of increasing dimension (100 Monte Carlo runs in each dimension). We apply the two functions to extract the first three eigenvectors. The figure below illustrates how the running time of the functions increase as we increase the dimension of the problem. It is clear that `spEigen()` scales very well, while `SPcaGrid()` and `spca()` become impractical for large dimensions.
+First, we illustrate how the functions scale with dimension. For this, we generate synthetic data with sparse eigenvectors (see next section for details) of increasing dimension (100 Monte Carlo runs in each dimension). We apply the two functions to extract the first three eigenvectors. Figure \@ref(fig:running-time) illustrates how the running time of the functions increase as we increase the dimension of the problem. It is clear that `spEigen()` scales very well, while `SPcaGrid()` and `spca()` become impractical for large dimensions.
 
 
 <!-- ![Average running time.](figures/running_time.pdf){width=75%} -->
-```{r echo=FALSE, out.width='75%', fig.cap = "Average running time."}
+```{r running-time, echo = FALSE, out.width = "75%", fig.cap = "Average running time."}
 knitr::include_graphics('figures/running_time.png', auto_pdf = TRUE)
 ```
 
-Another advantage of `spEigen()` (and `spEigenCov()`) is the parsimony and robustness in parameter selection. To illustrate this, in the next figure we compare the angle and pattern recovery ability of the functions. To this end, we generate 200 samples form a multivariate Gaussian distribution of dimension 500, following the process described in the next section. 
+Another advantage of `spEigen()` (and `spEigenCov()`) is the parsimony and robustness in parameter selection. To illustrate this, in Figure \@ref(fig:recovery) we compare the angle and pattern recovery ability of the functions. To this end, we generate 200 samples form a multivariate Gaussian distribution of dimension 500, following the process described in the next section. 
 
 <!-- ![Eigenvector recovery.](figures/recovery.png){width=95%} -->
-```{r echo=FALSE, out.width='95%', fig.cap = "Eigenvector recovery."}
+```{r recovery, echo = FALSE, out.width = "95%", fig.cap = "Eigenvector recovery."}
 knitr::include_graphics('figures/recovery.png', auto_pdf = TRUE)
 ```
 
@@ -64,12 +69,12 @@ We observe that `spEigen()` requires only one parameter and can recover correctl
 
 Further advantages of `spEigen()` are that it can handle real and complex data, and it accepts as input both data and covariance matrices. 
 
-
+\newpage
 # Usage of the package
 
 ## Computation of sparse eigenvectors of a given matrix
 We start by loading the package and generating synthetic data with sparse eigenvectors:
-```{r}
+```{r, cache = TRUE}
 library(sparseEigen)
 set.seed(42)
 
@@ -99,7 +104,7 @@ X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse struct
 ```
 
 Then, we estimate the covariance matrix with `cov(X)` and compute its sparse eigenvectors with `spEigen()`:
-```{r}
+```{r, cache = TRUE}
 # computation of sparse eigenvectors
 res_standard <- eigen(cov(X))
 res_sparse1 <- spEigen(cov(X), q, rho)
@@ -116,7 +121,7 @@ abs(diag(t(res_sparse2$vectors) %*% V[, 1:q]))    #for sparse estimated eigenvec
 
 
 Finally, the following plot shows the sparsity pattern of the eigenvectors (sparse computation vs. classical computation):
-```{r, fig.height = 7, fig.width = 7}
+```{r, fig.width = 7, fig.height = 7, out.width = "80%", pngquant = "--speed=1"}
 par(mfcol = c(3, 2))
 plot(res_sparse1$vectors[, 1]*sign(res_sparse1$vectors[1, 1]), 
      main = "First sparse eigenvector", xlab = "index", ylab = "", type = "h")
@@ -148,7 +153,7 @@ X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse struct
 ```
 
 Then, we compute the covariance matrix through the joint estimation of sparse eigenvectors and eigenvalues:
-```{r}
+```{r, cache = TRUE}
 # computation of covariance matrix
 res_sparse3 <- spEigenCov(cov(X), q, rho)
 ```
@@ -160,7 +165,7 @@ abs(diag(t(res_sparse3$vectors[, 1:q]) %*% V[, 1:q]))    #for sparse estimated e
 ```
 
 The following plot shows the sparsity pattern of the eigenvectors:
-```{r, fig.height = 6, fig.width = 5}
+```{r, fig.width = 5, fig.height = 6, out.width = "50%", pngquant = "--speed=1"}
 par(mfcol = c(3, 1))
 plot(res_sparse3$vectors[, 1]*sign(res_sparse3$vectors[1, 1]), 
      main = "First sparse eigenvector", xlab = "index", ylab = "", type = "h")
@@ -185,7 +190,7 @@ norm(res_sparse3$cov - R, type = 'F') #for covariance with sparse eigenvectors
 The previous examples illustrate the usage of the functions `spEigen()` and `spEigenCov()` for real-valued data and covariance matrices. However, both functions can handle complex-valued inputs. 
 
 Following the previous data generation procedure, we generate sparse complex eigenvectors by introducing a random phase in each entry:
-```{r}
+```{r, cache = TRUE}
 m <- 500 # dimension
 n <- 600 # number of samples
 q <- 3 # number of sparse eigenvectors to be estimated
@@ -214,7 +219,7 @@ X <- scale(X, center = TRUE, scale = FALSE)
 ```
 
 Then, we compute the sparse complex eigenvectors (`spEigen()`) and the covariance matrix (`spEigenCov()`):
-```{r}
+```{r, cache = TRUE}
 # computation of sparse eigenvectors and covariance matrix
 S <- 1/(n-1) * t(X) %*% Conj(X)
 res_sparse4 <- spEigen(S, q, rho)
@@ -222,7 +227,7 @@ res_sparse5 <- spEigenCov(S, q, rho)
 ```
 
 The following plot shows the sparsity pattern of the eigenvectors for both functions:
-```{r, fig.height = 7, fig.width = 7}
+```{r, fig.width = 7, fig.height = 7, out.width = "80%", pngquant = "--speed=1"}
 par(mfcol = c(3, 2))
 plot(abs(res_sparse4$vectors[, 1]), main = "spEigen: First sparse eigenvector", 
      xlab = "index", ylab = "", type = "h")
@@ -286,15 +291,18 @@ $$w_{i}^{(k)}= \begin{cases}
 		\end{cases}$$
 with $\mathbf{w}\in\mathbb{R}_+^{mq}$, $\mathbf{\tilde{u}}^{(k)} = \text{vec}(\mathbf{U}^{(k)})\in\mathbb{R}_+^{mq}$, $\mathbf{w}_{\max}\in\mathbb{R}^q_+$, with $w_{\max,i}$ being the maximum weight that corresponds to the $i$-th eigenvector $\mathbf{u}^{(k)}_{i}$.
 
+\newpage
 The iterative closed-form update algorithm is:  
 
-> 1. Set $k=0$ and choose an initial point $\mathbf{U}^{(0)}$  
-2. Compute $\mathbf{G}^{(k)}$ and $\mathbf{H}^{(k)}$  
-3. Compute $\mathbf{V}_{\text{L}}$, $\mathbf{V}_{\text{R}}$ as the left and right singular vectors of $\left(\mathbf{G}^{(k)} - \mathbf{H}^{(k)}\right)$  
-4. $\mathbf{U}^{(k+1)} \gets \mathbf{V}_{\text{L}}\mathbf{V}_{\text{R}}^\top$  
-5. $k \gets k+1$  
-6. Repeat steps 2-5 until convergence  
-7. Return $\mathbf{U}^{(k)}$  
+> **Algorithm 1**  
+  1. Set $k=0$ and choose an initial point $\mathbf{U}^{(0)}$  
+  2. Compute $\mathbf{G}^{(k)}$ and $\mathbf{H}^{(k)}$  
+  3. Compute $\mathbf{V}_{\text{L}}$, $\mathbf{V}_{\text{R}}$ as the left and right singular vectors of 
+     $\left(\mathbf{G}^{(k)} - \mathbf{H}^{(k)}\right)$  
+  4. $\mathbf{U}^{(k+1)} \gets \mathbf{V}_{\text{L}}\mathbf{V}_{\text{R}}^\top$  
+  5. $k \gets k+1$  
+  6. Repeat steps 2-5 until convergence  
+  7. Return $\mathbf{U}^{(k)}$  
 
 The initial point of the algorithm $\mathbf{U}^{(0)}$ is set by default to the $q$ leading standard eigenvectors, unless the user specifies otherwise. Internally, all the computations of $\mathbf{G}^{(k)}$ and $\mathbf{H}^{(k)}$ are done through the eigenvalue decomposition (EVD) of $\mathbf{S}$. Since we can also retrieve the eigenvectors and eigenvalues of $\mathbf{S}$ through the singular value decomposition (SVD) of the data matrix $\mathbf{X}$, with $\mathbf{S} = \frac{1}{n-1}\mathbf{X}^\top\mathbf{X}$, it becomes possible to use as an input to `spEigen()` either the covariance matrix $\mathbf{S}$ or directly the data matrix $\mathbf{X}$.  
   
@@ -361,15 +369,16 @@ where $\mathbf{\alpha}^{(k)} = \text{diag}\left(\left(\mathbf{\Xi}^{(k)}\right)^
 
 The overall iterative semi-closed-form update algorithm is:
 
-> 1. Set $k=0$ and choose initial points $\mathbf{U}^{(0)}$, $\mathbf{\xi}^{(0)}$  
-2. Compute $\mathbf{H}^{(k)}$  
-3. Compute $\mathbf{V}_{\text{L}}$, $\mathbf{V}_{\text{R}}$ as the left and right singular vectors of $\mathbf{H}^{(k)}$    
-4. $\mathbf{U}^{(k+1)} \gets \mathbf{V}_{\text{L}}\mathbf{V}_{\text{R}}^\top$  
-5. Compute $\mathbf{\alpha}^{(k)}$  
-6. Get $\mathbf{\xi}^{(k+1)}$ from the finite-step algorithm   
-7. $k \gets k+1$  
-8. Repeat steps 2-7 until convergence  
-9. Return $\mathbf{U}^{(k)}$, $\mathbf{\xi}^{(k)}$   
+> **Algorithm 2**  
+  1. Set $k=0$ and choose initial points $\mathbf{U}^{(0)}$, $\mathbf{\xi}^{(0)}$  
+  2. Compute $\mathbf{H}^{(k)}$  
+  3. Compute $\mathbf{V}_{\text{L}}$, $\mathbf{V}_{\text{R}}$ as the left and right singular vectors of $\mathbf{H}^{(k)}$    
+  4. $\mathbf{U}^{(k+1)} \gets \mathbf{V}_{\text{L}}\mathbf{V}_{\text{R}}^\top$  
+  5. Compute $\mathbf{\alpha}^{(k)}$  
+  6. Get $\mathbf{\xi}^{(k+1)}$ from the finite-step algorithm   
+  7. $k \gets k+1$  
+  8. Repeat steps 2-7 until convergence  
+  9. Return $\mathbf{U}^{(k)}$, $\mathbf{\xi}^{(k)}$   
 
 As in the `spEigen()` function, we sequentially decrease the values of $p, \epsilon$, and increase the convergence speed of each problem using the acceleration method proposed in [@Varadhan2008].
 
