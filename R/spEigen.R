@@ -35,7 +35,7 @@
 #' # generate data
 #' X <- MASS::mvrnorm(n, rep(0, m), R)  # random data with underlying sparse structure
 #'
-#' # standardand sparse eigenvectors
+#' # standard and sparse eigenvectors
 #' res_standard <- eigen(cov(X))
 #' res_sparse <- spEigen(cov(X), q)
 #'
