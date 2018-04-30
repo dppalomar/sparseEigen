@@ -12,10 +12,10 @@ output:
     toc: yes
     toc_depth: 2
   bookdown::pdf_document2:
+    fig_caption: yes
     number_sections: yes
     toc: yes
     toc_depth: 2
-    fig_caption: yes
 indent: yes
 csl: ieee.csl
 bibliography: refs.bib
