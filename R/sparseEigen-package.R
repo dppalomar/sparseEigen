@@ -13,9 +13,14 @@
 #' \code{\link{spEigen}}, \code{\link{spEigenCov}}
 #'
 #' @section Help:
-#' For a quick help see the README \url{https://cran.r-project.org/web/packages/sparseEigen/README.html}.
+#' For a quick help see the README:
+#' \href{https://rawgit.com/dppalomar/sparseEigen/master/README.html}{GitHub-README} and
+#' \href{https://cran.r-project.org/web/packages/sparseEigen/README.html}{CRAN-README}.
 #'
-#' For more details see the vignette \url{https://cran.r-project.org/web/packages/sparseEigen/vignettes/SparseEigenvectors.pdf}.
+#' For more details see the vignette:
+#' \href{https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.html}{GitHub-html-vignette},
+#' \href{https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.pdf}{GitHub-pdf-vignette}, and
+#' \href{https://cran.r-project.org/web/packages/sparseEigen/vignettes/SparseEigenvectors.pdf}{CRAN-pdf-vignette}.
 #'
 #' @author Konstantinos Benidis and Daniel P. Palomar
 #'
