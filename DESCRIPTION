@@ -31,8 +31,10 @@ RoxygenNote: 6.0.1
 Suggests: 
     knitr,
     rmarkdown,
-    bookdown,
-    prettydoc,
     testthat,
     MASS
-VignetteBuilder: knitr
+VignetteBuilder: 
+    knitr,
+    bookdown,
+    prettydoc
+    

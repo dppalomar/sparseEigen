@@ -18,8 +18,8 @@
 #' \href{https://cran.r-project.org/web/packages/sparseEigen/README.html}{CRAN-README}.
 #'
 #' For more details see the vignette:
-#' \href{https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.html}{GitHub-html-vignette},
-#' \href{https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors.pdf}{GitHub-pdf-vignette}, and
+#' \href{https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors-vignette.html}{GitHub-html-vignette},
+#' \href{https://rawgit.com/dppalomar/sparseEigen/master/vignettes/SparseEigenvectors-vignette.pdf}{GitHub-pdf-vignette}, and
 #' \href{https://cran.r-project.org/web/packages/sparseEigen/vignettes/SparseEigenvectors.pdf}{CRAN-pdf-vignette}.
 #'
 #' @author Konstantinos Benidis and Daniel P. Palomar
