@@ -1,8 +1,12 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^cran-comments\.md$
+^NEWS\.md$
 ^README\.Rmd$
-^README-.*\.png$
+^README\.html$
+^README_cache$
+^README_files$
 ^R_buildignore$
 ^papers$
-^cran-comments.md$
-^README_cache$
+^vignettes/SparseEigenvectors-vignette_cache$
+^vignettes/SparseEigenvectors-vignette_files$

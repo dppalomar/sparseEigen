@@ -1,0 +1,29 @@
+---
+title: "Downloads of package sparseEigen"
+date: '`r Sys.Date()`'
+output: 
+  html_document:
+    theme: flatly
+    highlight: pygments
+---
+
+------------
+
+Let us download the data (takes a long time):
+```{r, cache = TRUE}
+#devtools::install_github("talgalili/installr")
+library(installr)
+RStudio_CRAN_data_folder <- download_RStudio_CRAN_data(START = "2017-11-05", END = "2017-12-31")
+my_RStudio_CRAN_data <- read_RStudio_CRAN_data(RStudio_CRAN_data_folder)
+my_RStudio_CRAN_data <- format_RStudio_CRAN_data(my_RStudio_CRAN_data)
+head(my_RStudio_CRAN_data)
+sparseEigen_data <- my_RStudio_CRAN_data[package=="sparseEigen"]
+save(sparseEigen_data, file = "sparseEigen_data")
+```
+
+Some plots:
+```{r}
+lineplot_package_downloads("sparseEigen", my_RStudio_CRAN_data)
+barplot_package_users_per_day("sparseEigen", my_RStudio_CRAN_data)
+```
+

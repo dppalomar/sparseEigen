@@ -37,9 +37,12 @@ Can handle covariance matrices as well as data matrices with real or
     comparison, with several illustrative examples. 
     
 The package is based on the paper:
-    K. Benidis, Y. Sun, P. Babu, and D. P. Palomar (2016), "Orthogonal Sparse PCA 
-    and Covariance Estimation via Procrustes Reformulation," IEEE Transactions on 
-    Signal Processing, <https://doi.org/10.1109/TSP.2016.2605073>.
+
+K. Benidis, Y. Sun, P. Babu, and D. P. Palomar, "Orthogonal Sparse PCA and 
+Covariance Estimation via Procrustes Reformulation," _IEEE Transactions on 
+Signal Processing_, vol. 64, no. 23, pp. 6211-6226, Dec. 2016. 
+(<https://doi.org/10.1109/TSP.2016.2605073>)
+
 
 
 ## Installation
