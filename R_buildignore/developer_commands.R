@@ -28,21 +28,21 @@ devtools::build()  # to generate the installation file
 #devtools::use_readme_rmd()  # to create the README file
 #devtools::use_data_raw()  # to set up the raw-data folder
 
-# Vignettes
-#devtools::use_vignette("sparse_eigenvectors")  # to create the folder the first time
-#rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "md_document")  # this is to generate the .md for GitHub
-#rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "pdf_document")
-rmarkdown::render("vignettes/SparseEigenvectors.Rmd", "all")  # this also generates the pdf
-tools::compactPDF("vignettes/SparseEigenvectors.pdf", gs_quality = "ebook")  # this compresses the pdf
-#devtools::build_vignettes()
-#browseVignettes("sparseEigen")
-#help(package="sparseEigen")
 
 # Documentation
 devtools::document()  #to generate all documentation via roxygen
 ?spEigen
 
 # README (.md file has to be generated manually by clicking Knitr)
+
+# Vignettes
+#devtools::use_vignette("sparse_eigenvectors")  # to create the folder the first time
+#rmarkdown::render("vignettes/SparseEigenvectors-vignette.Rmd", "md_document")  # this is to generate the .md for GitHub
+#rmarkdown::render("vignettes/SparseEigenvectors-vignette.Rmd", "bookdown::html_document2")
+#rmarkdown::render("vignettes/SparseEigenvectors-vignette.Rmd", "bookdown::pdf_document2")
+#tools::compactPDF("vignettes/SparseEigenvectors-vignette.pdf", gs_quality = "ebook")
+#browseVignettes("sparseEigen")
+
 
 
 # code style
@@ -56,13 +56,15 @@ covr::package_coverage()  #coverage of tests
 #goodpractice::gp()  # overall checks
 
 
-# CRAN check
+# CRAN check and submission
 devtools::check()
 rcmdcheck::rcmdcheck()
 devtools::build()
-#R CMD build .
+#R CMD build . --compact-vignettes=gs+qpdf  # this is to generate tarball
 #R CMD check sparseEigen_0.1.0.tar.gz --as-cran  # this is before submission to CRAN
+#submit the tarball directly via the webform: https://cran.r-project.org/submit.html
 
-# to upload to CRAN
-devtools::build_win()
-devtools::release()  #for CRAN
+# An alternative is to upload to CRAN via devtools:
+#devtools::build_win()  #to check under windows
+devtools::release(args = "--compact-vignettes=gs+qpdf")  #for CRAN
+
