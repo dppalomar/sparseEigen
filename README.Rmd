@@ -1,10 +1,10 @@
 ---
 output:
+  md_document:
+    variant: markdown_github
   html_document:
     variant: markdown_github
     keep_md: true
-  md_document:
-    variant: markdown_github
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -24,6 +24,10 @@ knit_hooks$set(pngquant = hook_pngquant)
 ```
 
 # sparseEigen
+
+[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/sparseEigen)](http://cran.r-project.org/package=sparseEigen)
+[![CRAN Downloads](http://cranlogs.r-pkg.org/badges/sparseEigen)](http://cran.r-project.org/package=sparseEigen)
+![CRAN Downloads Total](http://cranlogs.r-pkg.org/badges/grand-total/sparseEigen?color=brightgreen)
 
 Computation of sparse eigenvectors of a matrix (aka sparse PCA)
     with running time 2-3 orders of magnitude lower than existing methods and
