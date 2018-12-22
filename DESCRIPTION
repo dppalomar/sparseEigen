@@ -1,6 +1,6 @@
 Package: sparseEigen
 Title: Computation of Sparse Eigenvectors of a Matrix
-Version: 0.1.0
+Version: 0.1.0.9000
 Description: Computation of sparse eigenvectors of a matrix (aka sparse PCA)
     with running time 2-3 orders of magnitude lower than existing methods and
     better final performance in terms of recovery of sparsity pattern and 
@@ -28,7 +28,7 @@ License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
 Suggests: 
     MASS,
     knitr,
@@ -40,4 +40,3 @@ VignetteBuilder:
     knitr,
     bookdown,
     prettydoc
-    
